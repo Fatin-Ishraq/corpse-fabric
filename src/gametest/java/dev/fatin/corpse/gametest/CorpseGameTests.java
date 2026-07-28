@@ -5,10 +5,10 @@ import dev.fatin.corpse.death.CorpseDeathHandler;
 import dev.fatin.corpse.entity.CorpseEntity;
 import dev.fatin.corpse.menu.CorpseMenu;
 import dev.fatin.corpse.registry.CorpseRegistry;
-import net.fabricmc.fabric.api.gametest.v1.FabricGameTest;
+import net.fabricmc.fabric.api.gametest.v1.CustomTestMethodInvoker;
+import net.fabricmc.fabric.api.gametest.v1.GameTest;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
@@ -17,19 +17,23 @@ import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.enchantment.Enchantments;
-import net.minecraft.world.level.GameRules;
+import net.minecraft.util.ProblemReporter;
+import net.minecraft.world.level.gamerules.GameRules;
+import net.minecraft.world.level.storage.TagValueInput;
+import net.minecraft.world.level.storage.TagValueOutput;
 import net.minecraft.world.phys.Vec3;
 
+import java.lang.reflect.Method;
 import java.util.List;
 
-public final class CorpseGameTests implements FabricGameTest {
+public final class CorpseGameTests implements CustomTestMethodInvoker {
 
-    @GameTest(template = FabricGameTest.EMPTY_STRUCTURE)
+    @GameTest
     public void capturesInventoryWithoutDrops(GameTestHelper helper) {
         ServerPlayer player = createPlayer(helper);
         player.getInventory().setItem(0, new ItemStack(Items.DIAMOND, 3));
         player.getInventory().setItem(36, new ItemStack(Items.IRON_BOOTS));
-        player.getInventory().selected = 2;
+        player.getInventory().setSelectedSlot(2);
         player.getInventory().setItem(2, new ItemStack(Items.DIAMOND_SWORD));
         player.getInventory().setItem(39, new ItemStack(Items.IRON_HELMET));
         player.getInventory().setItem(40, new ItemStack(Items.SHIELD));
@@ -53,7 +57,7 @@ public final class CorpseGameTests implements FabricGameTest {
         helper.succeed();
     }
 
-    @GameTest(template = FabricGameTest.EMPTY_STRUCTURE)
+    @GameTest
     public void lethalDamageUsesDeathMixin(GameTestHelper helper) {
         ServerPlayer player = createPlayer(helper);
         player.getInventory().setItem(0, new ItemStack(Items.DIAMOND_SWORD));
@@ -68,7 +72,7 @@ public final class CorpseGameTests implements FabricGameTest {
         });
     }
 
-    @GameTest(template = FabricGameTest.EMPTY_STRUCTURE)
+    @GameTest
     public void excludesCurseOfVanishing(GameTestHelper helper) {
         ServerPlayer player = createPlayer(helper);
         ItemStack cursedSword = new ItemStack(Items.DIAMOND_SWORD);
@@ -89,13 +93,12 @@ public final class CorpseGameTests implements FabricGameTest {
         helper.succeed();
     }
 
-    @GameTest(template = FabricGameTest.EMPTY_STRUCTURE)
+    @GameTest
     public void respectsKeepInventory(GameTestHelper helper) {
         ServerPlayer player = createPlayer(helper);
         player.getInventory().setItem(0, new ItemStack(Items.EMERALD, 2));
-        GameRules.BooleanValue keepInventory = helper.getLevel().getGameRules().getRule(GameRules.RULE_KEEPINVENTORY);
-        boolean previous = keepInventory.get();
-        keepInventory.set(true, helper.getLevel().getServer());
+        boolean previous = helper.getLevel().getGameRules().get(GameRules.KEEP_INVENTORY);
+        helper.getLevel().getGameRules().set(GameRules.KEEP_INVENTORY, true, helper.getLevel().getServer());
         try {
             CorpseDeathHandler.onDeath(player, player.damageSources().generic());
             helper.assertTrue(player.getInventory().getItem(0).is(Items.EMERALD),
@@ -103,21 +106,21 @@ public final class CorpseGameTests implements FabricGameTest {
             helper.assertTrue(nearbyCorpses(helper, player).isEmpty(),
                     "keepInventory should prevent corpse creation");
         } finally {
-            keepInventory.set(previous, helper.getLevel().getServer());
+            helper.getLevel().getGameRules().set(GameRules.KEEP_INVENTORY, previous, helper.getLevel().getServer());
         }
         helper.succeed();
     }
 
-    @GameTest(template = FabricGameTest.EMPTY_STRUCTURE)
+    @GameTest
     public void transfersBackToOriginalSlots(GameTestHelper helper) {
         ServerPlayer player = createPlayer(helper);
         CorpseEntity corpse = CorpseRegistry.CORPSE_ENTITY.create(helper.getLevel(), EntitySpawnReason.COMMAND);
         helper.assertTrue(corpse != null, "corpse entity should be creatable");
-        corpse.setOwner(player.getUUID(), player.getGameProfile().getName());
+        corpse.setOwner(player.getUUID(), player.getGameProfile().name());
         corpse.setItem(0, new ItemStack(Items.GOLD_INGOT, 5));
         corpse.setItem(36, new ItemStack(Items.DIAMOND_BOOTS));
         Vec3 position = player.position();
-        corpse.moveTo(position.x, position.y, position.z, 0.0F, 0.0F);
+        corpse.snapTo(position.x, position.y, position.z, 0.0F, 0.0F);
         helper.getLevel().addFreshEntity(corpse);
 
         CorpseMenu menu = new CorpseMenu(1, player.getInventory(), corpse);
@@ -131,7 +134,7 @@ public final class CorpseGameTests implements FabricGameTest {
         helper.succeed();
     }
 
-    @GameTest(template = FabricGameTest.EMPTY_STRUCTURE)
+    @GameTest
     public void equipmentSlotsMirrorInventory(GameTestHelper helper) {
         CorpseEntity corpse = CorpseRegistry.CORPSE_ENTITY.create(helper.getLevel(), EntitySpawnReason.COMMAND);
         helper.assertTrue(corpse != null, "corpse entity should be creatable");
@@ -165,19 +168,21 @@ public final class CorpseGameTests implements FabricGameTest {
         helper.succeed();
     }
 
-    @GameTest(template = FabricGameTest.EMPTY_STRUCTURE)
+    @GameTest
     public void persistsInventoryAndOwner(GameTestHelper helper) {
         ServerPlayer player = createPlayer(helper);
         CorpseEntity source = CorpseRegistry.CORPSE_ENTITY.create(helper.getLevel(), EntitySpawnReason.COMMAND);
         CorpseEntity restored = CorpseRegistry.CORPSE_ENTITY.create(helper.getLevel(), EntitySpawnReason.COMMAND);
         helper.assertTrue(source != null && restored != null, "corpse entities should be creatable");
-        source.setOwner(player.getUUID(), player.getGameProfile().getName());
+        source.setOwner(player.getUUID(), player.getGameProfile().name());
         source.setItem(4, new ItemStack(Items.NETHERITE_SCRAP, 7));
         source.setSelectedSlot(4);
         source.setItem(39, new ItemStack(Items.DIAMOND_HELMET));
-        net.minecraft.nbt.CompoundTag tag = new net.minecraft.nbt.CompoundTag();
-        source.addAdditionalSaveData(tag);
-        restored.readAdditionalSaveData(tag);
+        TagValueOutput output = TagValueOutput.createWithContext(ProblemReporter.DISCARDING,
+                helper.getLevel().registryAccess());
+        source.saveWithoutId(output);
+        restored.load(TagValueInput.create(ProblemReporter.DISCARDING,
+                helper.getLevel().registryAccess(), output.buildResult()));
 
         helper.assertTrue(restored.getOwnerId().orElseThrow().equals(player.getUUID()),
                 "owner UUID should survive serialization");
@@ -192,7 +197,7 @@ public final class CorpseGameTests implements FabricGameTest {
         helper.succeed();
     }
 
-    @GameTest(template = FabricGameTest.EMPTY_STRUCTURE)
+    @GameTest
     public void entersSkeletonStage(GameTestHelper helper) {
         CorpseEntity corpse = CorpseRegistry.CORPSE_ENTITY.create(helper.getLevel(), EntitySpawnReason.COMMAND);
         helper.assertTrue(corpse != null, "corpse entity should be creatable");
@@ -205,6 +210,11 @@ public final class CorpseGameTests implements FabricGameTest {
             CorpseFabric.CONFIG.skeletonTicks = previousTicks;
         }
         helper.succeed();
+    }
+
+    @Override
+    public void invokeTestMethod(GameTestHelper helper, Method method) throws ReflectiveOperationException {
+        method.invoke(this, helper);
     }
 
     private static ServerPlayer createPlayer(GameTestHelper helper) {

@@ -1,12 +1,15 @@
 package dev.fatin.corpse.history;
 
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.fatin.corpse.entity.CorpseEntity;
-import net.minecraft.world.ContainerHelper;
-import net.minecraft.core.HolderLookup;
 import net.minecraft.core.NonNullList;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.core.UUIDUtil;
+import net.minecraft.world.ItemStackWithSlot;
 import net.minecraft.world.item.ItemStack;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 public record DeathRecord(
@@ -22,6 +25,25 @@ public record DeathRecord(
         NonNullList<ItemStack> items
 ) {
 
+    private static final Codec<NonNullList<ItemStack>> INVENTORY_CODEC =
+            ItemStackWithSlot.CODEC.listOf()
+                    .fieldOf("Items")
+                    .codec()
+                    .xmap(DeathRecord::fromSlots, DeathRecord::toSlots);
+
+    public static final Codec<DeathRecord> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+            UUIDUtil.CODEC.fieldOf("Id").forGetter(DeathRecord::id),
+            UUIDUtil.CODEC.fieldOf("PlayerId").forGetter(DeathRecord::playerId),
+            Codec.STRING.fieldOf("PlayerName").forGetter(DeathRecord::playerName),
+            Codec.LONG.fieldOf("Timestamp").forGetter(DeathRecord::timestamp),
+            Codec.STRING.fieldOf("Dimension").forGetter(DeathRecord::dimension),
+            Codec.DOUBLE.fieldOf("X").forGetter(DeathRecord::x),
+            Codec.DOUBLE.fieldOf("Y").forGetter(DeathRecord::y),
+            Codec.DOUBLE.fieldOf("Z").forGetter(DeathRecord::z),
+            Codec.STRING.fieldOf("Cause").forGetter(DeathRecord::cause),
+            INVENTORY_CODEC.fieldOf("Inventory").forGetter(DeathRecord::items)
+    ).apply(instance, DeathRecord::new));
+
     public DeathRecord copy() {
         NonNullList<ItemStack> copiedItems = NonNullList.withSize(items.size(), ItemStack.EMPTY);
         for (int index = 0; index < items.size(); index++) {
@@ -30,37 +52,24 @@ public record DeathRecord(
         return new DeathRecord(id, playerId, playerName, timestamp, dimension, x, y, z, cause, copiedItems);
     }
 
-    public CompoundTag save(HolderLookup.Provider registries) {
-        CompoundTag tag = new CompoundTag();
-        tag.putUUID("Id", id);
-        tag.putUUID("PlayerId", playerId);
-        tag.putString("PlayerName", playerName);
-        tag.putLong("Timestamp", timestamp);
-        tag.putString("Dimension", dimension);
-        tag.putDouble("X", x);
-        tag.putDouble("Y", y);
-        tag.putDouble("Z", z);
-        tag.putString("Cause", cause);
-        CompoundTag inventoryTag = new CompoundTag();
-        ContainerHelper.saveAllItems(inventoryTag, items, registries);
-        tag.put("Inventory", inventoryTag);
-        return tag;
+    private static NonNullList<ItemStack> fromSlots(List<ItemStackWithSlot> slots) {
+        NonNullList<ItemStack> items = NonNullList.withSize(CorpseEntity.INVENTORY_SIZE, ItemStack.EMPTY);
+        for (ItemStackWithSlot entry : slots) {
+            if (entry.isValidInContainer(items.size())) {
+                items.set(entry.slot(), entry.stack().copy());
+            }
+        }
+        return items;
     }
 
-    public static DeathRecord load(CompoundTag tag, HolderLookup.Provider registries) {
-        NonNullList<ItemStack> items = NonNullList.withSize(CorpseEntity.INVENTORY_SIZE, ItemStack.EMPTY);
-        ContainerHelper.loadAllItems(tag.getCompound("Inventory"), items, registries);
-        return new DeathRecord(
-                tag.getUUID("Id"),
-                tag.getUUID("PlayerId"),
-                tag.getString("PlayerName"),
-                tag.getLong("Timestamp"),
-                tag.getString("Dimension"),
-                tag.getDouble("X"),
-                tag.getDouble("Y"),
-                tag.getDouble("Z"),
-                tag.getString("Cause"),
-                items
-        );
+    private static List<ItemStackWithSlot> toSlots(NonNullList<ItemStack> items) {
+        List<ItemStackWithSlot> slots = new ArrayList<>();
+        for (int index = 0; index < items.size(); index++) {
+            ItemStack stack = items.get(index);
+            if (!stack.isEmpty()) {
+                slots.add(new ItemStackWithSlot(index, stack.copy()));
+            }
+        }
+        return slots;
     }
 }

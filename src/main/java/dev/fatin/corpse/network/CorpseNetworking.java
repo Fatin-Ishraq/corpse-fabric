@@ -19,9 +19,9 @@ import java.util.UUID;
 public final class CorpseNetworking {
 
     public static void registerPayloads() {
-        PayloadTypeRegistry.playC2S().register(OpenHistoryPayload.TYPE, OpenHistoryPayload.CODEC);
-        PayloadTypeRegistry.playC2S().register(OpenHistoryItemsPayload.TYPE, OpenHistoryItemsPayload.CODEC);
-        PayloadTypeRegistry.playS2C().register(HistoryResponsePayload.TYPE, HistoryResponsePayload.CODEC);
+        PayloadTypeRegistry.serverboundPlay().register(OpenHistoryPayload.TYPE, OpenHistoryPayload.CODEC);
+        PayloadTypeRegistry.serverboundPlay().register(OpenHistoryItemsPayload.TYPE, OpenHistoryItemsPayload.CODEC);
+        PayloadTypeRegistry.clientboundPlay().register(HistoryResponsePayload.TYPE, HistoryResponsePayload.CODEC);
     }
 
     public static void registerServer() {
@@ -33,17 +33,17 @@ public final class CorpseNetworking {
     }
 
     public static void sendHistory(ServerPlayer viewer, ServerPlayer target) {
-        List<DeathSummary> deaths = DeathHistoryState.get(viewer.getServer()).getForPlayer(target.getUUID())
+        List<DeathSummary> deaths = DeathHistoryState.get(viewer.level().getServer()).getForPlayer(target.getUUID())
                 .stream()
                 .map(DeathSummary::from)
                 .toList();
         ServerPlayNetworking.send(viewer,
-                new HistoryResponsePayload(target.getGameProfile().getName(), deaths));
+                new HistoryResponsePayload(target.getGameProfile().name(), deaths));
     }
 
     private static void openHistoryItems(ServerPlayer player, UUID deathId) {
-        DeathHistoryState.get(player.getServer()).find(deathId).ifPresent(record -> {
-            boolean allowed = record.playerId().equals(player.getUUID()) || player.hasPermissions(2);
+        DeathHistoryState.get(player.level().getServer()).find(deathId).ifPresent(record -> {
+            boolean allowed = record.playerId().equals(player.getUUID()) || player.permissions().hasPermission(net.minecraft.server.permissions.Permissions.COMMANDS_GAMEMASTER);
             if (!allowed) {
                 return;
             }

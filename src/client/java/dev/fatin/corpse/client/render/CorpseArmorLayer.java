@@ -2,7 +2,8 @@ package dev.fatin.corpse.client.render;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.model.HumanoidModel;
-import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.SubmitNodeCollector;
+import net.minecraft.client.renderer.entity.ArmorModelSet;
 import net.minecraft.client.renderer.entity.RenderLayerParent;
 import net.minecraft.client.renderer.entity.layers.EquipmentLayerRenderer;
 import net.minecraft.client.renderer.entity.layers.HumanoidArmorLayer;
@@ -16,19 +17,18 @@ final class CorpseArmorLayer extends HumanoidArmorLayer<
 
     CorpseArmorLayer(
             RenderLayerParent<CorpseRenderState, HumanoidModel<CorpseRenderState>> parent,
-            HumanoidModel<CorpseRenderState> innerModel,
-            HumanoidModel<CorpseRenderState> outerModel,
+            ArmorModelSet<HumanoidModel<CorpseRenderState>> modelSet,
             EquipmentLayerRenderer equipmentRenderer,
             boolean skeletonLayer) {
-        super(parent, innerModel, outerModel, equipmentRenderer);
+        super(parent, modelSet, equipmentRenderer);
         this.skeletonLayer = skeletonLayer;
     }
 
     @Override
-    public void render(PoseStack poseStack, MultiBufferSource buffers, int packedLight,
+    public void submit(PoseStack poseStack, SubmitNodeCollector collector, int packedLight,
                        CorpseRenderState state, float yRot, float xRot) {
         if (state.skeleton == skeletonLayer) {
-            super.render(poseStack, buffers, packedLight, state, yRot, xRot);
+            super.submit(poseStack, collector, packedLight, state, yRot, xRot);
         }
     }
 }

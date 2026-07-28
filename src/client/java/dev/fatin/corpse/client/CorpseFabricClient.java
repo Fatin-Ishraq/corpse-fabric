@@ -8,13 +8,12 @@ import dev.fatin.corpse.network.CorpseNetworking;
 import dev.fatin.corpse.registry.CorpseRegistry;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
-import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
+import net.fabricmc.fabric.api.client.keymapping.v1.KeyMappingHelper;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.gui.screens.MenuScreens;
 import org.lwjgl.glfw.GLFW;
-
 
 public final class CorpseFabricClient implements ClientModInitializer {
 
@@ -26,8 +25,8 @@ public final class CorpseFabricClient implements ClientModInitializer {
         MenuScreens.register(CorpseRegistry.CORPSE_MENU, CorpseInventoryScreen::new);
         MenuScreens.register(CorpseRegistry.HISTORY_MENU, HistoryInventoryScreen::new);
 
-        historyKey = KeyBindingHelper.registerKeyBinding(new KeyMapping(
-                "key.corpse.death_history", GLFW.GLFW_KEY_U, "key.categories.misc"
+        historyKey = KeyMappingHelper.registerKeyMapping(new KeyMapping(
+                "key.corpse.death_history", GLFW.GLFW_KEY_U, KeyMapping.Category.MISC
         ));
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
             while (historyKey.consumeClick()) {

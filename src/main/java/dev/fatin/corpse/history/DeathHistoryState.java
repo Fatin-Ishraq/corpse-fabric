@@ -1,14 +1,12 @@
 package dev.fatin.corpse.history;
 
+import com.mojang.serialization.Codec;
 import dev.fatin.corpse.CorpseFabric;
-import net.minecraft.core.HolderLookup;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.datafix.DataFixTypes;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.level.saveddata.SavedData;
+import net.minecraft.world.level.saveddata.SavedDataType;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -19,26 +17,25 @@ import java.util.UUID;
 public final class DeathHistoryState extends SavedData {
 
     private static final String DATA_NAME = "corpse_death_history";
-    private static final SavedData.Factory<DeathHistoryState> FACTORY = new SavedData.Factory<>(
-            DeathHistoryState::new, DeathHistoryState::load, DataFixTypes.LEVEL
+    private static final Codec<DeathHistoryState> CODEC = DeathRecord.CODEC.listOf()
+            .fieldOf("Deaths")
+            .codec()
+            .xmap(DeathHistoryState::new, DeathHistoryState::recordsForSave);
+    private static final SavedDataType<DeathHistoryState> TYPE = new SavedDataType<>(
+            Identifier.withDefaultNamespace(DATA_NAME), DeathHistoryState::new, CODEC, DataFixTypes.LEVEL
     );
+
     private final List<DeathRecord> records = new ArrayList<>();
 
-    public static DeathHistoryState get(MinecraftServer server) {
-        ServerLevel level = server.getLevel(Level.OVERWORLD);
-        if (level == null) {
-            throw new IllegalStateException("Overworld is not available");
-        }
-        return level.getDataStorage().computeIfAbsent(FACTORY, DATA_NAME);
+    public DeathHistoryState() {
     }
 
-    public static DeathHistoryState load(CompoundTag tag, HolderLookup.Provider registries) {
-        DeathHistoryState state = new DeathHistoryState();
-        ListTag list = tag.getList("Deaths", CompoundTag.TAG_COMPOUND);
-        for (int index = 0; index < list.size(); index++) {
-            state.records.add(DeathRecord.load(list.getCompound(index), registries));
-        }
-        return state;
+    private DeathHistoryState(List<DeathRecord> records) {
+        records.stream().map(DeathRecord::copy).forEach(this.records::add);
+    }
+
+    public static DeathHistoryState get(MinecraftServer server) {
+        return server.overworld().getDataStorage().computeIfAbsent(TYPE);
     }
 
     public synchronized void add(DeathRecord record) {
@@ -74,13 +71,7 @@ public final class DeathHistoryState extends SavedData {
         records.removeAll(playerRecords.subList(limit, playerRecords.size()));
     }
 
-    @Override
-    public synchronized CompoundTag save(CompoundTag tag, HolderLookup.Provider registries) {
-        ListTag list = new ListTag();
-        for (DeathRecord record : records) {
-            list.add(record.save(registries));
-        }
-        tag.put("Deaths", list);
-        return tag;
+    private synchronized List<DeathRecord> recordsForSave() {
+        return records.stream().map(DeathRecord::copy).toList();
     }
 }

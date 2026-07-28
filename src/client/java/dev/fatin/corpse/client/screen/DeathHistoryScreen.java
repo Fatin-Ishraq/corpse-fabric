@@ -3,7 +3,7 @@ package dev.fatin.corpse.client.screen;
 import dev.fatin.corpse.history.DeathSummary;
 import dev.fatin.corpse.network.CorpseNetworking;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
@@ -82,40 +82,39 @@ public final class DeathHistoryScreen extends Screen {
                 death.dimension(), death.x(), death.y(), death.z());
         minecraft.keyboardHandler.setClipboard(command);
         if (minecraft.player != null) {
-            minecraft.player.displayClientMessage(Component.translatable("message.corpse.teleport_copied"), false);
+            minecraft.player.sendSystemMessage(Component.translatable("message.corpse.teleport_copied"));
         }
     }
 
     @Override
-    public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
-        renderBackground(graphics, mouseX, mouseY, partialTick);
+    public void extractRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
         int center = width / 2;
         int panelTop = height / 2 - 75;
         graphics.fill(center - 165, panelTop, center + 165, panelTop + 150, 0xE615191E);
         graphics.fill(center - 164, panelTop + 1, center + 164, panelTop + 149, 0xE6252B32);
-        graphics.drawCenteredString(font, title, center, panelTop + 12, 0xF1F5F9);
+        graphics.centeredText(font, title, center, panelTop + 12, 0xF1F5F9);
 
         if (deaths.isEmpty()) {
-            graphics.drawCenteredString(font, Component.translatable("gui.corpse.no_deaths"),
+            graphics.centeredText(font, Component.translatable("gui.corpse.no_deaths"),
                     center, panelTop + 65, 0xAEB8C4);
         } else {
             DeathSummary death = deaths.get(index);
             String date = DATE_FORMAT.format(Instant.ofEpochMilli(death.timestamp()).atZone(ZoneId.systemDefault()));
-            graphics.drawCenteredString(font, Component.literal(date), center, panelTop + 35, 0xDDE5ED);
-            graphics.drawCenteredString(font,
+            graphics.centeredText(font, Component.literal(date), center, panelTop + 35, 0xDDE5ED);
+            graphics.centeredText(font,
                     Component.translatable("gui.corpse.dimension", death.dimension()),
                     center, panelTop + 51, 0xAEB8C4);
-            graphics.drawCenteredString(font,
+            graphics.centeredText(font,
                     Component.translatable("gui.corpse.coordinates",
                             Math.round(death.x()), Math.round(death.y()), Math.round(death.z())),
                     center, panelTop + 67, 0xAEB8C4);
-            graphics.drawCenteredString(font, Component.literal(death.cause()),
+            graphics.centeredText(font, Component.literal(death.cause()),
                     center, panelTop + 83, 0xD7A7A7);
-            graphics.drawCenteredString(font,
+            graphics.centeredText(font,
                     Component.translatable("gui.corpse.page", index + 1, deaths.size()),
                     center, panelTop + 101, 0x8794A3);
         }
-        super.render(graphics, mouseX, mouseY, partialTick);
+        super.extractRenderState(graphics, mouseX, mouseY, partialTick);
     }
 
     @Override

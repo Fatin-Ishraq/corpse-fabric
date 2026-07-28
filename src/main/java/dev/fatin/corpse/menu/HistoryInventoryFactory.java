@@ -1,7 +1,7 @@
 package dev.fatin.corpse.menu;
 
 import dev.fatin.corpse.history.DeathRecord;
-import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerFactory;
+import net.fabricmc.fabric.api.menu.v1.ExtendedMenuProvider;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.SimpleContainer;
@@ -11,7 +11,7 @@ import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.Nullable;
 
-public final class HistoryInventoryFactory implements ExtendedScreenHandlerFactory<HistoryScreenData> {
+public final class HistoryInventoryFactory implements ExtendedMenuProvider<HistoryScreenData> {
 
     private final DeathRecord record;
     private final SimpleContainer inventory;

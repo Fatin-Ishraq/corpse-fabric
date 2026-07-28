@@ -8,11 +8,13 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.geom.ModelLayers;
 import net.minecraft.client.multiplayer.PlayerInfo;
-import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.SubmitNodeCollector;
+import net.minecraft.client.renderer.entity.ArmorModelSet;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.HumanoidMobRenderer;
+import net.minecraft.client.renderer.state.level.CameraRenderState;
 import net.minecraft.client.resources.DefaultPlayerSkin;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 import java.util.UUID;
 
@@ -21,8 +23,8 @@ public final class CorpseEntityRenderer extends HumanoidMobRenderer<
         CorpseRenderState,
         HumanoidModel<CorpseRenderState>> {
 
-    private static final ResourceLocation SKELETON_TEXTURE =
-            ResourceLocation.withDefaultNamespace("textures/entity/skeleton/skeleton.png");
+    private static final Identifier SKELETON_TEXTURE =
+            Identifier.withDefaultNamespace("textures/entity/skeleton/skeleton.png");
 
     private final HumanoidModel<CorpseRenderState> playerModel;
     private final HumanoidModel<CorpseRenderState> skeletonModel;
@@ -33,15 +35,13 @@ public final class CorpseEntityRenderer extends HumanoidMobRenderer<
         skeletonModel = new HumanoidModel<>(context.bakeLayer(ModelLayers.SKELETON));
         addLayer(new CorpseArmorLayer(
                 this,
-                new HumanoidModel<>(context.bakeLayer(ModelLayers.PLAYER_INNER_ARMOR)),
-                new HumanoidModel<>(context.bakeLayer(ModelLayers.PLAYER_OUTER_ARMOR)),
+                ArmorModelSet.bake(ModelLayers.PLAYER_ARMOR, context.getModelSet(), HumanoidModel::new),
                 context.getEquipmentRenderer(),
                 false
         ));
         addLayer(new CorpseArmorLayer(
                 this,
-                new HumanoidModel<>(context.bakeLayer(ModelLayers.SKELETON_INNER_ARMOR)),
-                new HumanoidModel<>(context.bakeLayer(ModelLayers.SKELETON_OUTER_ARMOR)),
+                ArmorModelSet.bake(ModelLayers.SKELETON_ARMOR, context.getModelSet(), HumanoidModel::new),
                 context.getEquipmentRenderer(),
                 true
         ));
@@ -61,10 +61,10 @@ public final class CorpseEntityRenderer extends HumanoidMobRenderer<
     }
 
     @Override
-    public void render(CorpseRenderState state, PoseStack poseStack,
-                       MultiBufferSource buffers, int packedLight) {
+    public void submit(CorpseRenderState state, PoseStack poseStack,
+                       SubmitNodeCollector collector, CameraRenderState cameraState) {
         model = state.skeleton ? skeletonModel : playerModel;
-        super.render(state, poseStack, buffers, packedLight);
+        super.submit(state, poseStack, collector, cameraState);
     }
 
     @Override
@@ -81,7 +81,7 @@ public final class CorpseEntityRenderer extends HumanoidMobRenderer<
     }
 
     @Override
-    public ResourceLocation getTextureLocation(CorpseRenderState state) {
+    public Identifier getTextureLocation(CorpseRenderState state) {
         return state.skeleton ? SKELETON_TEXTURE : state.texture;
     }
 
@@ -90,7 +90,7 @@ public final class CorpseEntityRenderer extends HumanoidMobRenderer<
         return false;
     }
 
-    private static ResourceLocation resolveTexture(CorpseEntity corpse) {
+    private static Identifier resolveTexture(CorpseEntity corpse) {
         UUID ownerId = corpse.getOwnerId().orElse(null);
         if (ownerId == null) {
             return DefaultPlayerSkin.getDefaultTexture();
@@ -99,10 +99,12 @@ public final class CorpseEntityRenderer extends HumanoidMobRenderer<
         if (minecraft.getConnection() != null) {
             PlayerInfo info = minecraft.getConnection().getPlayerInfo(ownerId);
             if (info != null) {
-                return info.getSkin().texture();
+                return info.getSkin().body().texturePath();
             }
         }
         String name = corpse.getOwnerName().isBlank() ? ownerId.toString() : corpse.getOwnerName();
-        return minecraft.getSkinManager().getInsecureSkin(new GameProfile(ownerId, name)).texture();
+        return minecraft.getSkinManager()
+                .createLookup(new GameProfile(ownerId, name), false)
+                .get().body().texturePath();
     }
 }

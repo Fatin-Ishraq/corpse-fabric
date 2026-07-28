@@ -12,7 +12,7 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.enchantment.EnchantmentEffectComponents;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
-import net.minecraft.world.level.GameRules;
+import net.minecraft.world.level.gamerules.GameRules;
 
 import java.util.Map;
 import java.util.UUID;
@@ -24,7 +24,7 @@ public final class CorpseDeathHandler {
 
     public static void onDeath(ServerPlayer player, DamageSource source) {
         if (player.isSpectator()
-                || player.serverLevel().getGameRules().getBoolean(GameRules.RULE_KEEPINVENTORY)) {
+                || player.level().getGameRules().get(GameRules.KEEP_INVENTORY)) {
             return;
         }
 
@@ -49,22 +49,22 @@ public final class CorpseDeathHandler {
         DeathRecord record = new DeathRecord(
                 UUID.randomUUID(),
                 player.getUUID(),
-                player.getGameProfile().getName(),
+                player.getGameProfile().name(),
                 System.currentTimeMillis(),
-                player.level().dimension().location().toString(),
+                player.level().dimension().identifier().toString(),
                 player.getX(),
                 player.getY(),
                 player.getZ(),
                 cause,
                 captured
         );
-        DeathHistoryState.get(player.getServer()).add(record);
+        DeathHistoryState.get(player.level().getServer()).add(record);
 
-        CorpseEntity corpse = CorpseRegistry.CORPSE_ENTITY.create(player.serverLevel(), EntitySpawnReason.TRIGGERED);
+        CorpseEntity corpse = CorpseRegistry.CORPSE_ENTITY.create(player.level(), EntitySpawnReason.TRIGGERED);
         if (corpse != null) {
             corpse.initialize(player, captured);
-            corpse.moveTo(player.getX(), player.getY() + 0.1D, player.getZ(), player.getYRot(), 0.0F);
-            player.serverLevel().addFreshEntity(corpse);
+            corpse.snapTo(player.getX(), player.getY() + 0.1D, player.getZ(), player.getYRot(), 0.0F);
+            player.level().addFreshEntity(corpse);
         }
 
         inventory.clearContent();

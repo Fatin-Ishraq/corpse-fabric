@@ -1,7 +1,7 @@
 package dev.fatin.corpse.client.screen;
 
 import dev.fatin.corpse.menu.HistoryMenu;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.network.chat.Component;
@@ -10,9 +10,7 @@ import net.minecraft.world.entity.player.Inventory;
 public final class HistoryInventoryScreen extends AbstractContainerScreen<HistoryMenu> {
 
     public HistoryInventoryScreen(HistoryMenu menu, Inventory inventory, Component title) {
-        super(menu, inventory, title);
-        imageWidth = 176;
-        imageHeight = 222;
+        super(menu, inventory, title, 176, 222);
         inventoryLabelY = 130;
     }
 
@@ -29,23 +27,17 @@ public final class HistoryInventoryScreen extends AbstractContainerScreen<Histor
     }
 
     @Override
-    public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
-        renderBackground(graphics, mouseX, mouseY, partialTick);
-        super.render(graphics, mouseX, mouseY, partialTick);
-        renderTooltip(graphics, mouseX, mouseY);
-    }
-
-    @Override
-    protected void renderBg(GuiGraphics graphics, float partialTick, int mouseX, int mouseY) {
+    public void extractContents(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
         ScreenBackground.draw(graphics, menu, leftPos, topPos, imageWidth, imageHeight);
+        super.extractContents(graphics, mouseX, mouseY, partialTick);
     }
 
     @Override
-    protected void renderLabels(GuiGraphics graphics, int mouseX, int mouseY) {
-        graphics.drawString(font, title, titleLabelX, titleLabelY, 0xE7EDF4, false);
-        graphics.drawString(font, playerInventoryTitle, inventoryLabelX, inventoryLabelY, 0xAEB8C4, false);
+    protected void extractLabels(GuiGraphicsExtractor graphics, int mouseX, int mouseY) {
+        graphics.text(font, title, titleLabelX, titleLabelY, 0xE7EDF4, false);
+        graphics.text(font, playerInventoryTitle, inventoryLabelX, inventoryLabelY, 0xAEB8C4, false);
         if (!menu.isEditable()) {
-            graphics.drawCenteredString(font, Component.translatable("gui.corpse.read_only"), imageWidth / 2, 113, 0xD8A657);
+            graphics.centeredText(font, Component.translatable("gui.corpse.read_only"), imageWidth / 2, 113, 0xD8A657);
         }
     }
 }

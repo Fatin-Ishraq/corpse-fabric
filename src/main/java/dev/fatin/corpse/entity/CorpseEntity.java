@@ -2,10 +2,10 @@ package dev.fatin.corpse.entity;
 
 import dev.fatin.corpse.CorpseFabric;
 import dev.fatin.corpse.menu.CorpseMenu;
-import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerFactory;
+import net.fabricmc.fabric.api.menu.v1.ExtendedMenuProvider;
 import net.minecraft.world.ContainerHelper;
 import net.minecraft.core.NonNullList;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.core.UUIDUtil;
 
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.syncher.EntityDataAccessor;
@@ -26,17 +26,20 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
+import net.minecraft.server.permissions.Permissions;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
 import java.util.UUID;
 
-public final class CorpseEntity extends PathfinderMob implements Container, ExtendedScreenHandlerFactory<Integer> {
+public final class CorpseEntity extends PathfinderMob implements Container, ExtendedMenuProvider<Integer> {
 
     public static final int INVENTORY_SIZE = 41;
 
-    private static final EntityDataAccessor<Optional<UUID>> OWNER_ID = SynchedEntityData.defineId(
-            CorpseEntity.class, EntityDataSerializers.OPTIONAL_UUID
+    private static final EntityDataAccessor<String> OWNER_ID = SynchedEntityData.defineId(
+            CorpseEntity.class, EntityDataSerializers.STRING
     );
     private static final EntityDataAccessor<String> OWNER_NAME = SynchedEntityData.defineId(
             CorpseEntity.class, EntityDataSerializers.STRING
@@ -78,7 +81,7 @@ public final class CorpseEntity extends PathfinderMob implements Container, Exte
     @Override
     protected void defineSynchedData(SynchedEntityData.Builder builder) {
         super.defineSynchedData(builder);
-        builder.define(OWNER_ID, Optional.empty());
+        builder.define(OWNER_ID, "");
         builder.define(OWNER_NAME, "");
         builder.define(SKELETON, false);
         builder.define(FACE_DOWN, false);
@@ -86,10 +89,10 @@ public final class CorpseEntity extends PathfinderMob implements Container, Exte
     }
 
     public void initialize(ServerPlayer owner, NonNullList<ItemStack> capturedItems) {
-        setOwner(owner.getUUID(), owner.getGameProfile().getName());
+        setOwner(owner.getUUID(), owner.getGameProfile().name());
         createdGameTime = level().getGameTime();
         entityData.set(FACE_DOWN, CorpseFabric.CONFIG.spawnFaceDown);
-        setSelectedSlot(owner.getInventory().selected);
+        setSelectedSlot(owner.getInventory().getSelectedSlot());
         for (int index = 0; index < Math.min(items.size(), capturedItems.size()); index++) {
             items.set(index, capturedItems.get(index).copy());
         }
@@ -99,12 +102,12 @@ public final class CorpseEntity extends PathfinderMob implements Container, Exte
     }
 
     public void setOwner(UUID ownerId, String ownerName) {
-        entityData.set(OWNER_ID, Optional.of(ownerId));
+        entityData.set(OWNER_ID, ownerId.toString());
         entityData.set(OWNER_NAME, ownerName);
     }
 
     public Optional<UUID> getOwnerId() {
-        return entityData.get(OWNER_ID);
+        return parseUuid(entityData.get(OWNER_ID));
     }
 
     public String getOwnerName() {
@@ -135,7 +138,7 @@ public final class CorpseEntity extends PathfinderMob implements Container, Exte
             case LEGS -> 37;
             case CHEST -> 38;
             case HEAD -> 39;
-            case BODY -> -1;
+            case BODY, SADDLE -> -1;
         };
     }
 
@@ -145,7 +148,7 @@ public final class CorpseEntity extends PathfinderMob implements Container, Exte
         setNoGravity(true);
         setDeltaMovement(0.0D, 0.0D, 0.0D);
 
-        if (!level().isClientSide) {
+        if (!level().isClientSide()) {
             long age = Math.max(0L, level().getGameTime() - createdGameTime);
             if (!isSkeleton() && age >= CorpseFabric.CONFIG.skeletonTicks) {
                 entityData.set(SKELETON, true);
@@ -180,15 +183,17 @@ public final class CorpseEntity extends PathfinderMob implements Container, Exte
             return InteractionResult.PASS;
         }
         if (!canPlayerAccess(player)) {
-            if (!level().isClientSide) {
-                player.displayClientMessage(Component.translatable("message.corpse.not_owner"), true);
+            if (!level().isClientSide()) {
+                if (player instanceof ServerPlayer serverPlayer) {
+                    serverPlayer.sendSystemMessage(Component.translatable("message.corpse.not_owner"), true);
+                }
             }
             return InteractionResult.FAIL;
         }
-        if (!level().isClientSide && player instanceof ServerPlayer serverPlayer) {
+        if (!level().isClientSide() && player instanceof ServerPlayer serverPlayer) {
             serverPlayer.openMenu(this);
         }
-        return level().isClientSide ? InteractionResult.SUCCESS : InteractionResult.SUCCESS_SERVER;
+        return level().isClientSide() ? InteractionResult.SUCCESS : InteractionResult.SUCCESS_SERVER;
     }
 
     public boolean canPlayerAccess(Player player) {
@@ -199,7 +204,7 @@ public final class CorpseEntity extends PathfinderMob implements Container, Exte
             return true;
         }
         return getOwnerId().map(id -> id.equals(player.getUUID())).orElse(false)
-                || player.hasPermissions(2);
+                || player.permissions().hasPermission(Permissions.COMMANDS_GAMEMASTER);
     }
 
     @Override
@@ -296,7 +301,7 @@ public final class CorpseEntity extends PathfinderMob implements Container, Exte
     @Override
     public boolean stillValid(Player player) {
         return isAlive() && distanceToSqr(player) <= 64.0D
-                && (level().isClientSide || canPlayerAccess(player));
+                && (level().isClientSide() || canPlayerAccess(player));
     }
 
     @Override
@@ -305,37 +310,43 @@ public final class CorpseEntity extends PathfinderMob implements Container, Exte
     }
 
     @Override
-    public void addAdditionalSaveData(CompoundTag tag) {
-        super.addAdditionalSaveData(tag);
-        getOwnerId().ifPresent(id -> tag.putUUID("Owner", id));
-        tag.putString("OwnerName", getOwnerName());
-        tag.putLong("CreatedGameTime", createdGameTime);
-        tag.putInt("EmptyTicks", emptyTicks);
-        tag.putBoolean("Skeleton", isSkeleton());
-        tag.putBoolean("FaceDown", isFaceDown());
-        tag.putInt("SelectedSlot", getSelectedSlot());
-        ContainerHelper.saveAllItems(tag, items, registryAccess());
+    protected void addAdditionalSaveData(ValueOutput output) {
+        super.addAdditionalSaveData(output);
+        getOwnerId().ifPresent(id -> output.store("Owner", UUIDUtil.LENIENT_CODEC, id));
+        output.putString("OwnerName", getOwnerName());
+        output.putLong("CreatedGameTime", createdGameTime);
+        output.putInt("EmptyTicks", emptyTicks);
+        output.putBoolean("Skeleton", isSkeleton());
+        output.putBoolean("FaceDown", isFaceDown());
+        output.putInt("SelectedSlot", getSelectedSlot());
+        ContainerHelper.saveAllItems(output, items);
     }
 
     @Override
-    public void readAdditionalSaveData(CompoundTag tag) {
-        super.readAdditionalSaveData(tag);
-        if (tag.hasUUID("Owner")) {
-            setOwner(tag.getUUID("Owner"), tag.getString("OwnerName"));
-        }
-        createdGameTime = tag.getLong("CreatedGameTime");
-        emptyTicks = tag.getInt("EmptyTicks");
-        entityData.set(SKELETON, tag.getBoolean("Skeleton"));
-        entityData.set(FACE_DOWN, tag.getBoolean("FaceDown"));
-        setSelectedSlot(tag.getInt("SelectedSlot"));
+    protected void readAdditionalSaveData(ValueInput input) {
+        super.readAdditionalSaveData(input);
+        input.read("Owner", UUIDUtil.LENIENT_CODEC)
+                .ifPresent(id -> setOwner(id, input.getStringOr("OwnerName", "")));
+        createdGameTime = input.getLongOr("CreatedGameTime", level().getGameTime());
+        emptyTicks = input.getIntOr("EmptyTicks", 0);
+        entityData.set(SKELETON, input.getBooleanOr("Skeleton", false));
+        entityData.set(FACE_DOWN, input.getBooleanOr("FaceDown", false));
+        setSelectedSlot(input.getIntOr("SelectedSlot", 0));
         items = NonNullList.withSize(INVENTORY_SIZE, ItemStack.EMPTY);
-        ContainerHelper.loadAllItems(tag, items, registryAccess());
+        ContainerHelper.loadAllItems(input, items);
         setNoAi(true);
         setNoGravity(true);
         setInvulnerable(true);
         setPersistenceRequired();
     }
 
+    private static Optional<UUID> parseUuid(String value) {
+        try {
+            return Optional.of(UUID.fromString(value));
+        } catch (IllegalArgumentException ignored) {
+            return Optional.empty();
+        }
+    }
     @Override
     public boolean removeWhenFarAway(double distance) {
         return false;

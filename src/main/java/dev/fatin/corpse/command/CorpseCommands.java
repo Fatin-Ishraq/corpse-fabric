@@ -23,7 +23,7 @@ public final class CorpseCommands {
                     return 1;
                 })
                 .then(Commands.argument("player", EntityArgument.player())
-                        .requires(source -> source.hasPermission(2))
+                        .requires(source -> source.permissions().hasPermission(net.minecraft.server.permissions.Permissions.COMMANDS_GAMEMASTER))
                         .executes(context -> {
                             ServerPlayer viewer = context.getSource().getPlayerOrException();
                             ServerPlayer target = EntityArgument.getPlayer(context, "player");
