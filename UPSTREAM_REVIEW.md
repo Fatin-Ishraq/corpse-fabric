@@ -30,14 +30,15 @@ The root follows the original project's familiar Gradle structure:
 
 ## Validation evidence
 
-`./gradlew build` runs six required Fabric GameTests. They cover:
+`./gradlew build` runs seven required Fabric GameTests. They cover:
 
 1. the real `ServerPlayer.die` mixin path;
 2. capture without duplicate item entities;
 3. the `keepInventory` rule;
 4. transfer back to original inventory/armor slots;
-5. owner and inventory NBT serialization;
-6. configured skeleton conversion.
+5. owner, inventory, selected-slot, and equipment NBT serialization;
+6. armor, hand, and offhand slot mapping/removal;
+7. configured skeleton conversion.
 
 The Minecraft 1.20.1 client and dedicated server have also completed startup smoke tests. Manual gameplay testing is tracked in `TESTING.md`.
 

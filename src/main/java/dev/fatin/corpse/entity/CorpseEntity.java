@@ -16,6 +16,7 @@ import net.minecraft.world.Container;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.PathfinderMob;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
@@ -48,6 +49,10 @@ public final class CorpseEntity extends PathfinderMob implements Container, Exte
             CorpseEntity.class, EntityDataSerializers.BOOLEAN
     );
 
+    private static final EntityDataAccessor<Integer> SELECTED_SLOT = SynchedEntityData.defineId(
+            CorpseEntity.class, EntityDataSerializers.INT
+    );
+
     private NonNullList<ItemStack> items = NonNullList.withSize(INVENTORY_SIZE, ItemStack.EMPTY);
     private long createdGameTime;
     private int emptyTicks;
@@ -77,12 +82,14 @@ public final class CorpseEntity extends PathfinderMob implements Container, Exte
         entityData.define(OWNER_NAME, "");
         entityData.define(SKELETON, false);
         entityData.define(FACE_DOWN, false);
+        entityData.define(SELECTED_SLOT, 0);
     }
 
     public void initialize(ServerPlayer owner, NonNullList<ItemStack> capturedItems) {
         setOwner(owner.getUUID(), owner.getGameProfile().getName());
         createdGameTime = level().getGameTime();
         entityData.set(FACE_DOWN, CorpseFabric.CONFIG.spawnFaceDown);
+        setSelectedSlot(owner.getInventory().selected);
         for (int index = 0; index < Math.min(items.size(), capturedItems.size()); index++) {
             items.set(index, capturedItems.get(index).copy());
         }
@@ -110,6 +117,25 @@ public final class CorpseEntity extends PathfinderMob implements Container, Exte
 
     public boolean isFaceDown() {
         return entityData.get(FACE_DOWN);
+    }
+
+    public int getSelectedSlot() {
+        return Math.max(0, Math.min(8, entityData.get(SELECTED_SLOT)));
+    }
+
+    public void setSelectedSlot(int selectedSlot) {
+        entityData.set(SELECTED_SLOT, Math.max(0, Math.min(8, selectedSlot)));
+    }
+
+    private int inventorySlotForEquipment(EquipmentSlot equipmentSlot) {
+        return switch (equipmentSlot) {
+            case MAINHAND -> getSelectedSlot();
+            case OFFHAND -> 40;
+            case FEET -> 36;
+            case LEGS -> 37;
+            case CHEST -> 38;
+            case HEAD -> 39;
+        };
     }
 
     @Override
@@ -195,6 +221,24 @@ public final class CorpseEntity extends PathfinderMob implements Container, Exte
     }
 
     @Override
+    public ItemStack getItemBySlot(EquipmentSlot equipmentSlot) {
+        if (items == null) {
+            return super.getItemBySlot(equipmentSlot);
+        }
+        int slot = inventorySlotForEquipment(equipmentSlot);
+        return slot >= 0 && slot < items.size() ? items.get(slot) : ItemStack.EMPTY;
+    }
+
+    @Override
+    public void setItemSlot(EquipmentSlot equipmentSlot, ItemStack stack) {
+        if (items == null) {
+            super.setItemSlot(equipmentSlot, stack);
+            return;
+        }
+        setItem(inventorySlotForEquipment(equipmentSlot), stack);
+    }
+
+    @Override
     public int getContainerSize() {
         return items.size();
     }
@@ -268,6 +312,7 @@ public final class CorpseEntity extends PathfinderMob implements Container, Exte
         tag.putInt("EmptyTicks", emptyTicks);
         tag.putBoolean("Skeleton", isSkeleton());
         tag.putBoolean("FaceDown", isFaceDown());
+        tag.putInt("SelectedSlot", getSelectedSlot());
         ContainerHelper.saveAllItems(tag, items);
     }
 
@@ -281,6 +326,7 @@ public final class CorpseEntity extends PathfinderMob implements Container, Exte
         emptyTicks = tag.getInt("EmptyTicks");
         entityData.set(SKELETON, tag.getBoolean("Skeleton"));
         entityData.set(FACE_DOWN, tag.getBoolean("FaceDown"));
+        setSelectedSlot(tag.getInt("SelectedSlot"));
         items = NonNullList.withSize(INVENTORY_SIZE, ItemStack.EMPTY);
         ContainerHelper.loadAllItems(tag, items);
         setNoAi(true);

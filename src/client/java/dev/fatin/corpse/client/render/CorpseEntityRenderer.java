@@ -5,7 +5,6 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import dev.fatin.corpse.entity.CorpseEntity;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.geom.ModelLayers;
@@ -13,12 +12,15 @@ import net.minecraft.client.multiplayer.PlayerInfo;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.MobRenderer;
+import net.minecraft.client.renderer.entity.layers.CustomHeadLayer;
+import net.minecraft.client.renderer.entity.layers.ElytraLayer;
+import net.minecraft.client.renderer.entity.layers.ItemInHandLayer;
 import net.minecraft.client.resources.DefaultPlayerSkin;
 import net.minecraft.resources.ResourceLocation;
 
 import java.util.UUID;
 
-public final class CorpseEntityRenderer extends MobRenderer<CorpseEntity, EntityModel<CorpseEntity>> {
+public final class CorpseEntityRenderer extends MobRenderer<CorpseEntity, HumanoidModel<CorpseEntity>> {
 
     private static final ResourceLocation SKELETON_TEXTURE =
             new ResourceLocation("textures/entity/skeleton/skeleton.png");
@@ -30,6 +32,23 @@ public final class CorpseEntityRenderer extends MobRenderer<CorpseEntity, Entity
         super(context, new PlayerModel<>(context.bakeLayer(ModelLayers.PLAYER), false), 0.35F);
         this.playerModel = (PlayerModel<CorpseEntity>) this.model;
         this.skeletonModel = new HumanoidModel<>(context.bakeLayer(ModelLayers.SKELETON));
+        addLayer(new CorpseArmorLayer(
+                this,
+                new HumanoidModel<>(context.bakeLayer(ModelLayers.PLAYER_INNER_ARMOR)),
+                new HumanoidModel<>(context.bakeLayer(ModelLayers.PLAYER_OUTER_ARMOR)),
+                context.getModelManager(),
+                false
+        ));
+        addLayer(new CorpseArmorLayer(
+                this,
+                new HumanoidModel<>(context.bakeLayer(ModelLayers.SKELETON_INNER_ARMOR)),
+                new HumanoidModel<>(context.bakeLayer(ModelLayers.SKELETON_OUTER_ARMOR)),
+                context.getModelManager(),
+                true
+        ));
+        addLayer(new ItemInHandLayer<>(this, context.getItemInHandRenderer()));
+        addLayer(new CustomHeadLayer<>(this, context.getModelSet(), context.getItemInHandRenderer()));
+        addLayer(new ElytraLayer<>(this, context.getModelSet()));
     }
 
     @Override

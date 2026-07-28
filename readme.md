@@ -41,6 +41,7 @@ Install Fabric API and the built JAR in the `mods` folder. On multiplayer server
 - Prevents duplicate vanilla item drops after a corpse is created.
 - Persists corpse ownership, inventory, orientation, age, and skeleton state in world data.
 - Uses the player's skin and a vanilla skeleton model without copied project artwork.
+- Renders synchronized armor, the selected hotbar item, and offhand equipment; visuals update as items are recovered.
 - Owner-protected access, operator bypass, and configurable public skeleton access.
 - Right-click inventory, shift-click retrieval, and one-button transfer to original slots where possible.
 - Persistent death history with time, dimension, coordinates, death message, and inventory snapshot.
@@ -75,7 +76,7 @@ Use a Java 21 Gradle runtime; the produced mod targets Java 17 bytecode:
 .\gradlew.bat build
 ```
 
-The distributable JAR is written to `build/libs`. The build also launches Fabric's GameTest server. Six required tests cover the real `ServerPlayer.die` mixin path, duplicate-drop prevention, `keepInventory`, original-slot transfer, corpse NBT persistence, and skeleton timing.
+The distributable JAR is written to `build/libs`. The build also launches Fabric's GameTest server. Seven required tests cover the real `ServerPlayer.die` mixin path, duplicate-drop prevention, `keepInventory`, original-slot transfer, corpse NBT persistence, equipment-slot synchronization, and skeleton timing.
 
 For a development client:
 

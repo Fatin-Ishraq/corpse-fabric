@@ -11,6 +11,7 @@ import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.GameRules;
@@ -25,6 +26,10 @@ public final class CorpseGameTests implements FabricGameTest {
         ServerPlayer player = createPlayer(helper);
         player.getInventory().setItem(0, new ItemStack(Items.DIAMOND, 3));
         player.getInventory().setItem(36, new ItemStack(Items.IRON_BOOTS));
+        player.getInventory().selected = 2;
+        player.getInventory().setItem(2, new ItemStack(Items.DIAMOND_SWORD));
+        player.getInventory().setItem(39, new ItemStack(Items.IRON_HELMET));
+        player.getInventory().setItem(40, new ItemStack(Items.SHIELD));
 
         CorpseDeathHandler.onDeath(player, player.damageSources().generic());
 
@@ -35,6 +40,12 @@ public final class CorpseGameTests implements FabricGameTest {
         helper.assertTrue(corpse.getItem(0).is(Items.DIAMOND), "corpse should contain diamonds in slot 0");
         helper.assertTrue(corpse.getItem(0).getCount() == 3, "corpse should preserve item count");
         helper.assertTrue(corpse.getItem(36).is(Items.IRON_BOOTS), "corpse should preserve armor slot");
+        helper.assertTrue(corpse.getItemBySlot(EquipmentSlot.MAINHAND).is(Items.DIAMOND_SWORD),
+                "death capture should preserve selected main-hand equipment");
+        helper.assertTrue(corpse.getItemBySlot(EquipmentSlot.HEAD).is(Items.IRON_HELMET),
+                "death capture should expose worn armor");
+        helper.assertTrue(corpse.getItemBySlot(EquipmentSlot.OFFHAND).is(Items.SHIELD),
+                "death capture should expose offhand equipment");
         helper.assertItemEntityCountIs(Items.DIAMOND, player.blockPosition(), 4.0D, 0);
         helper.succeed();
     }
@@ -97,6 +108,40 @@ public final class CorpseGameTests implements FabricGameTest {
     }
 
     @GameTest(template = FabricGameTest.EMPTY_STRUCTURE)
+    public void equipmentSlotsMirrorInventory(GameTestHelper helper) {
+        CorpseEntity corpse = CorpseRegistry.CORPSE_ENTITY.create(helper.getLevel());
+        helper.assertTrue(corpse != null, "corpse entity should be creatable");
+        corpse.setSelectedSlot(2);
+        corpse.setItem(2, new ItemStack(Items.DIAMOND_SWORD));
+        corpse.setItem(36, new ItemStack(Items.IRON_BOOTS));
+        corpse.setItem(37, new ItemStack(Items.IRON_LEGGINGS));
+        corpse.setItem(38, new ItemStack(Items.IRON_CHESTPLATE));
+        corpse.setItem(39, new ItemStack(Items.IRON_HELMET));
+        corpse.setItem(40, new ItemStack(Items.SHIELD));
+
+        helper.assertTrue(corpse.getItemBySlot(EquipmentSlot.MAINHAND).is(Items.DIAMOND_SWORD),
+                "selected hotbar item should be exposed as main-hand equipment");
+        helper.assertTrue(corpse.getItemBySlot(EquipmentSlot.OFFHAND).is(Items.SHIELD),
+                "offhand inventory should be exposed as offhand equipment");
+        helper.assertTrue(corpse.getItemBySlot(EquipmentSlot.FEET).is(Items.IRON_BOOTS),
+                "boots should be exposed as feet equipment");
+        helper.assertTrue(corpse.getItemBySlot(EquipmentSlot.LEGS).is(Items.IRON_LEGGINGS),
+                "leggings should be exposed as leg equipment");
+        helper.assertTrue(corpse.getItemBySlot(EquipmentSlot.CHEST).is(Items.IRON_CHESTPLATE),
+                "chestplate should be exposed as chest equipment");
+        helper.assertTrue(corpse.getItemBySlot(EquipmentSlot.HEAD).is(Items.IRON_HELMET),
+                "helmet should be exposed as head equipment");
+
+        corpse.removeItemNoUpdate(39);
+        helper.assertTrue(corpse.getItemBySlot(EquipmentSlot.HEAD).isEmpty(),
+                "removing a helmet should immediately clear visible head equipment");
+        corpse.setItemSlot(EquipmentSlot.CHEST, ItemStack.EMPTY);
+        helper.assertTrue(corpse.getItem(38).isEmpty(),
+                "equipment packet updates should map back to the corpse inventory");
+        helper.succeed();
+    }
+
+    @GameTest(template = FabricGameTest.EMPTY_STRUCTURE)
     public void persistsInventoryAndOwner(GameTestHelper helper) {
         ServerPlayer player = createPlayer(helper);
         CorpseEntity source = CorpseRegistry.CORPSE_ENTITY.create(helper.getLevel());
@@ -104,6 +149,8 @@ public final class CorpseGameTests implements FabricGameTest {
         helper.assertTrue(source != null && restored != null, "corpse entities should be creatable");
         source.setOwner(player.getUUID(), player.getGameProfile().getName());
         source.setItem(4, new ItemStack(Items.NETHERITE_SCRAP, 7));
+        source.setSelectedSlot(4);
+        source.setItem(39, new ItemStack(Items.DIAMOND_HELMET));
         net.minecraft.nbt.CompoundTag tag = new net.minecraft.nbt.CompoundTag();
         source.addAdditionalSaveData(tag);
         restored.readAdditionalSaveData(tag);
@@ -114,6 +161,10 @@ public final class CorpseGameTests implements FabricGameTest {
                 "inventory item should survive serialization");
         helper.assertTrue(restored.getItem(4).getCount() == 7,
                 "inventory count should survive serialization");
+        helper.assertTrue(restored.getSelectedSlot() == 4,
+                "selected hotbar slot should survive serialization");
+        helper.assertTrue(restored.getItemBySlot(EquipmentSlot.HEAD).is(Items.DIAMOND_HELMET),
+                "visible armor mapping should survive serialization");
         helper.succeed();
     }
 
