@@ -6,6 +6,13 @@
 - Added upstream provenance/adoption notes, issue forms, and GitHub Actions verification.
 - Prepared the source as an explicitly unofficial public review repository.
 
+## 0.1.3+1.20.1 - death history interface parity
+
+- Restyle death history with the original mod's light-gray Minecraft interface palette.
+- Align the navigation row with consistent panel padding and separate the Done button.
+- Render information text without shadows for sharper readability.
+- Recreate the palette programmatically without bundling upstream textures or assets.
+
 ## 0.1.2+1.20.1 - corpse pose correction
 
 - Rotate corpses around the X axis so they rest on their back or face instead of a shoulder.
