@@ -6,6 +6,13 @@
 - Added upstream provenance/adoption notes, issue forms, and GitHub Actions verification.
 - Prepared the source as an explicitly unofficial public review repository.
 
+## 0.1.1-test+26.2 - UI and skeleton rendering
+
+- Restyle and align death history with the approved original-style light-gray interface.
+- Render death-history text with explicit opaque colors and without shadows.
+- Delegate decomposed corpses to Minecraft 26.2's native skeleton renderer.
+- Preserve corpse resting rotation and native skeleton equipment layers.
+
 ## 0.1.0-test+26.2 - Fabric preview port
 
 - Port the approved 26.1.2 implementation to Minecraft 26.2, Fabric Loader 0.19.3, Fabric API 0.156.0, and Java 25.

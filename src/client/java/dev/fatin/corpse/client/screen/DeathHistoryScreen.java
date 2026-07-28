@@ -16,6 +16,17 @@ import java.util.List;
 public final class DeathHistoryScreen extends Screen {
 
     private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+    private static final int PANEL_WIDTH = 330;
+    private static final int PANEL_HEIGHT = 166;
+    private static final int PANEL_BOTTOM_PADDING = 7;
+    private static final int BUTTON_HEIGHT = 20;
+    private static final int PANEL_BACKGROUND = 0xFFC6C6C6;
+    private static final int PANEL_BORDER_DARK = 0xFF000000;
+    private static final int PANEL_BORDER_LIGHT = 0xFFFFFFFF;
+    private static final int PANEL_BORDER_SHADOW = 0xFF555555;
+    private static final int TEXT_PRIMARY = 0xFF000000;
+    private static final int TEXT_SECONDARY = 0xFF555555;
+    private static final int TEXT_CAUSE = 0xFFAA0000;
 
     private final String playerName;
     private final List<DeathSummary> deaths;
@@ -34,7 +45,8 @@ public final class DeathHistoryScreen extends Screen {
     @Override
     protected void init() {
         int center = width / 2;
-        int buttonY = height / 2 + 55;
+        int panelTop = (height - PANEL_HEIGHT) / 2;
+        int buttonY = panelTop + PANEL_HEIGHT - PANEL_BOTTOM_PADDING - BUTTON_HEIGHT;
         previousButton = addRenderableWidget(Button.builder(Component.translatable("gui.corpse.previous"),
                 button -> changePage(-1)).bounds(center - 154, buttonY, 72, 20).build());
         itemsButton = addRenderableWidget(Button.builder(Component.translatable("gui.corpse.items"),
@@ -44,7 +56,7 @@ public final class DeathHistoryScreen extends Screen {
         nextButton = addRenderableWidget(Button.builder(Component.translatable("gui.corpse.next"),
                 button -> changePage(1)).bounds(center + 80, buttonY, 72, 20).build());
         addRenderableWidget(Button.builder(Component.translatable("gui.done"),
-                button -> onClose()).bounds(center - 50, buttonY + 26, 100, 20).build());
+                button -> onClose()).bounds(center - 50, panelTop + PANEL_HEIGHT + 7, 100, 20).build());
         updateButtons();
     }
 
@@ -89,32 +101,43 @@ public final class DeathHistoryScreen extends Screen {
     @Override
     public void extractRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
         int center = width / 2;
-        int panelTop = height / 2 - 75;
-        graphics.fill(center - 165, panelTop, center + 165, panelTop + 150, 0xE615191E);
-        graphics.fill(center - 164, panelTop + 1, center + 164, panelTop + 149, 0xE6252B32);
-        graphics.centeredText(font, title, center, panelTop + 12, 0xFFF1F5F9);
+        int panelTop = (height - PANEL_HEIGHT) / 2;
+        int panelLeft = center - PANEL_WIDTH / 2;
+        int panelRight = panelLeft + PANEL_WIDTH;
+        int panelBottom = panelTop + PANEL_HEIGHT;
+        graphics.fill(panelLeft, panelTop, panelRight, panelBottom, PANEL_BORDER_DARK);
+        graphics.fill(panelLeft + 1, panelTop + 1, panelRight - 1, panelBottom - 1, PANEL_BORDER_LIGHT);
+        graphics.fill(panelLeft + 2, panelTop + 2, panelRight - 2, panelBottom - 2, PANEL_BACKGROUND);
+        graphics.fill(panelRight - 3, panelTop + 2, panelRight - 2, panelBottom - 2, PANEL_BORDER_SHADOW);
+        graphics.fill(panelLeft + 2, panelBottom - 3, panelRight - 2, panelBottom - 2, PANEL_BORDER_SHADOW);
+        drawCenteredNoShadow(graphics, title, center, panelTop + 12, TEXT_PRIMARY);
 
         if (deaths.isEmpty()) {
-            graphics.centeredText(font, Component.translatable("gui.corpse.no_deaths"),
-                    center, panelTop + 65, 0xFFAEB8C4);
+            drawCenteredNoShadow(graphics, Component.translatable("gui.corpse.no_deaths"),
+                    center, panelTop + 65, TEXT_SECONDARY);
         } else {
             DeathSummary death = deaths.get(index);
             String date = DATE_FORMAT.format(Instant.ofEpochMilli(death.timestamp()).atZone(ZoneId.systemDefault()));
-            graphics.centeredText(font, Component.literal(date), center, panelTop + 35, 0xFFDDE5ED);
-            graphics.centeredText(font,
+            drawCenteredNoShadow(graphics, Component.literal(date), center, panelTop + 35, TEXT_SECONDARY);
+            drawCenteredNoShadow(graphics,
                     Component.translatable("gui.corpse.dimension", death.dimension()),
-                    center, panelTop + 51, 0xFFAEB8C4);
-            graphics.centeredText(font,
+                    center, panelTop + 51, TEXT_SECONDARY);
+            drawCenteredNoShadow(graphics,
                     Component.translatable("gui.corpse.coordinates",
                             Math.round(death.x()), Math.round(death.y()), Math.round(death.z())),
-                    center, panelTop + 67, 0xFFAEB8C4);
-            graphics.centeredText(font, Component.literal(death.cause()),
-                    center, panelTop + 83, 0xFFD7A7A7);
-            graphics.centeredText(font,
+                    center, panelTop + 67, TEXT_SECONDARY);
+            drawCenteredNoShadow(graphics, Component.literal(death.cause()),
+                    center, panelTop + 83, TEXT_CAUSE);
+            drawCenteredNoShadow(graphics,
                     Component.translatable("gui.corpse.page", index + 1, deaths.size()),
-                    center, panelTop + 101, 0xFF8794A3);
+                    center, panelTop + 101, TEXT_SECONDARY);
         }
         super.extractRenderState(graphics, mouseX, mouseY, partialTick);
+    }
+
+    private void drawCenteredNoShadow(GuiGraphicsExtractor graphics, Component text,
+                                      int center, int y, int color) {
+        graphics.text(font, text, center - font.width(text) / 2, y, color, false);
     }
 
     @Override
