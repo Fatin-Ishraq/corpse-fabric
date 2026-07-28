@@ -1,0 +1,29 @@
+{
+  "schemaVersion": 1,
+  "id": "corpse",
+  "version": "${version}",
+  "name": "Corpse (Fabric)",
+  "description": "Stores a player's inventory in a persistent corpse when they die.",
+  "authors": [
+    "Fatin"
+  ],
+  "license": "LicenseRef-Permission-Pending",
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "dev.fatin.corpse.CorpseFabric"
+    ],
+    "client": [
+      "dev.fatin.corpse.client.CorpseFabricClient"
+    ]
+  },
+  "mixins": [
+    "corpse.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": ">=0.15.11",
+    "minecraft": "~1.20.1",
+    "java": ">=17",
+    "fabric-api": "*"
+  }
+}

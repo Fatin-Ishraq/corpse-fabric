@@ -1,0 +1,19 @@
+{
+  "container.corpse.inventory": "%s's Corpse",
+  "container.corpse.history_items": "%s's Death Inventory",
+  "gui.corpse.transfer": "Transfer Items",
+  "gui.corpse.recover_copy": "Recover Copy",
+  "gui.corpse.read_only": "Creative mode required to recover items",
+  "gui.corpse.history": "%s's Death History",
+  "gui.corpse.previous": "Previous",
+  "gui.corpse.next": "Next",
+  "gui.corpse.items": "Items",
+  "gui.corpse.location": "Location",
+  "gui.corpse.no_deaths": "No deaths have been recorded.",
+  "gui.corpse.dimension": "Dimension: %s",
+  "gui.corpse.coordinates": "Location: %s, %s, %s",
+  "gui.corpse.page": "%s / %s",
+  "key.corpse.death_history": "Open Death History",
+  "message.corpse.not_owner": "This corpse is protected.",
+  "message.corpse.teleport_copied": "Teleport command copied to clipboard."
+}

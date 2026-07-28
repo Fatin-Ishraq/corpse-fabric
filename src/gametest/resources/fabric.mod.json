@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "id": "corpse-gametest",
+  "version": "1.0.0",
+  "name": "Corpse Game Tests",
+  "environment": "*",
+  "entrypoints": {
+    "fabric-gametest": [
+      "dev.fatin.corpse.gametest.CorpseGameTests"
+    ]
+  },
+  "depends": {
+    "corpse": "*",
+    "fabric-gametest-api-v1": "*"
+  }
+}
