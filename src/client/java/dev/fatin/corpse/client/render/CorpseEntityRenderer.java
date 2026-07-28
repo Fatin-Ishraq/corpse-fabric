@@ -11,6 +11,8 @@ import net.minecraft.client.multiplayer.PlayerInfo;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.HumanoidMobRenderer;
+import net.minecraft.client.renderer.entity.SkeletonRenderer;
+import net.minecraft.client.renderer.entity.state.SkeletonRenderState;
 import net.minecraft.client.resources.DefaultPlayerSkin;
 import net.minecraft.resources.ResourceLocation;
 
@@ -21,29 +23,19 @@ public final class CorpseEntityRenderer extends HumanoidMobRenderer<
         CorpseRenderState,
         HumanoidModel<CorpseRenderState>> {
 
-    private static final ResourceLocation SKELETON_TEXTURE =
-            ResourceLocation.withDefaultNamespace("textures/entity/skeleton/skeleton.png");
-
     private final HumanoidModel<CorpseRenderState> playerModel;
-    private final HumanoidModel<CorpseRenderState> skeletonModel;
+    private final SkeletonRenderer skeletonRenderer;
 
     public CorpseEntityRenderer(EntityRendererProvider.Context context) {
         super(context, new CorpsePlayerModel(context.bakeLayer(ModelLayers.PLAYER)), 0.35F);
         playerModel = model;
-        skeletonModel = new HumanoidModel<>(context.bakeLayer(ModelLayers.SKELETON));
+        skeletonRenderer = new CorpseSkeletonRenderer(context);
         addLayer(new CorpseArmorLayer(
                 this,
                 new HumanoidModel<>(context.bakeLayer(ModelLayers.PLAYER_INNER_ARMOR)),
                 new HumanoidModel<>(context.bakeLayer(ModelLayers.PLAYER_OUTER_ARMOR)),
                 context.getEquipmentRenderer(),
                 false
-        ));
-        addLayer(new CorpseArmorLayer(
-                this,
-                new HumanoidModel<>(context.bakeLayer(ModelLayers.SKELETON_INNER_ARMOR)),
-                new HumanoidModel<>(context.bakeLayer(ModelLayers.SKELETON_OUTER_ARMOR)),
-                context.getEquipmentRenderer(),
-                true
         ));
     }
 
@@ -63,7 +55,11 @@ public final class CorpseEntityRenderer extends HumanoidMobRenderer<
     @Override
     public void render(CorpseRenderState state, PoseStack poseStack,
                        MultiBufferSource buffers, int packedLight) {
-        model = state.skeleton ? skeletonModel : playerModel;
+        if (state.skeleton) {
+            skeletonRenderer.render(state, poseStack, buffers, packedLight);
+            return;
+        }
+        model = playerModel;
         super.render(state, poseStack, buffers, packedLight);
     }
 
@@ -82,12 +78,36 @@ public final class CorpseEntityRenderer extends HumanoidMobRenderer<
 
     @Override
     public ResourceLocation getTextureLocation(CorpseRenderState state) {
-        return state.skeleton ? SKELETON_TEXTURE : state.texture;
+        return state.texture;
     }
 
     @Override
     protected boolean shouldShowName(CorpseEntity corpse, double distanceToCameraSq) {
         return false;
+    }
+
+    private static final class CorpseSkeletonRenderer extends SkeletonRenderer {
+
+        private CorpseSkeletonRenderer(EntityRendererProvider.Context context) {
+            super(context);
+        }
+
+        @Override
+        protected void setupRotations(SkeletonRenderState state, PoseStack poseStack,
+                                      float bodyYaw, float scale) {
+            if (!(state instanceof CorpseRenderState corpseState)) {
+                super.setupRotations(state, poseStack, bodyYaw, scale);
+                return;
+            }
+            poseStack.mulPose(Axis.YP.rotationDegrees(180.0F - bodyYaw));
+            if (corpseState.faceDown) {
+                poseStack.mulPose(Axis.XP.rotationDegrees(-90.0F));
+                poseStack.translate(0.0F, -0.78F, 2.01D / 16.0D);
+            } else {
+                poseStack.mulPose(Axis.XP.rotationDegrees(90.0F));
+                poseStack.translate(0.0F, -0.78F, -2.01D / 16.0D);
+            }
+        }
     }
 
     private static ResourceLocation resolveTexture(CorpseEntity corpse) {

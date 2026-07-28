@@ -6,6 +6,20 @@
 - Added upstream provenance/adoption notes, issue forms, and GitHub Actions verification.
 - Prepared the source as an explicitly unofficial public review repository.
 
+## 0.1.2-test+1.21.4 - proper skeleton rendering
+
+- Delegate decomposed corpses to Minecraft 1.21.4's dedicated `SkeletonRenderer` and `SkeletonRenderState`.
+- Preserve the corpse's face-up or face-down resting rotation through the delegated skeleton renderer.
+- Keep the skeleton renderer's native body, armor, head-item, wings, and held-item layers.
+
+## 0.1.1-test+1.21.4 - death history interface parity
+
+- Restyle death history with the original mod's light-gray Minecraft interface palette.
+- Align the navigation row with consistent panel padding and separate the Done button.
+- Render information text without shadows for sharper readability.
+- Keep panel contents out of Minecraft's blur pass so the interface remains sharp.
+- Recreate the palette programmatically without bundling upstream textures or assets.
+
 ## 0.1.0-test+1.21.4 - Fabric preview port
 
 - Port the approved 1.21.1 gameplay and interface to Minecraft 1.21.4 while keeping Java 21 compatibility.
