@@ -20,7 +20,8 @@ No upstream Java source, textures, icons, or other assets are bundled. The imple
 
 | Branch | Minecraft | Loader | Status |
 | --- | --- | --- | --- |
-| `master` | 1.21.1 | Fabric | Current review build |
+| `1.21.4` | 1.21.4 | Fabric | Preview branch; extended testing in progress |
+| `master` | 1.21.1 | Fabric | Current approved review build |
 | `1.21.1` | 1.21.1 | Fabric | Preserved version branch |
 | `1.20.1` | 1.20.1 | Fabric | Preserved version branch |
 
@@ -28,9 +29,9 @@ Future Minecraft versions will use version-named branches, following the structu
 
 ## Requirements
 
-- Minecraft 1.21.1
+- Minecraft 1.21.4
 - Fabric Loader 0.15.11 or newer
-- Fabric API for Minecraft 1.21.1
+- Fabric API for Minecraft 1.21.4
 - Java 21 or newer
 
 Install Fabric API and the built JAR in the `mods` folder. On multiplayer servers, install both on the server and every connecting client.

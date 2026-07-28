@@ -5,9 +5,9 @@ import dev.fatin.corpse.history.DeathHistoryState;
 import dev.fatin.corpse.history.DeathRecord;
 import dev.fatin.corpse.registry.CorpseRegistry;
 import net.minecraft.core.NonNullList;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.enchantment.EnchantmentEffectComponents;
@@ -24,7 +24,7 @@ public final class CorpseDeathHandler {
 
     public static void onDeath(ServerPlayer player, DamageSource source) {
         if (player.isSpectator()
-                || player.level().getGameRules().getBoolean(GameRules.RULE_KEEPINVENTORY)) {
+                || player.serverLevel().getGameRules().getBoolean(GameRules.RULE_KEEPINVENTORY)) {
             return;
         }
 
@@ -60,11 +60,11 @@ public final class CorpseDeathHandler {
         );
         DeathHistoryState.get(player.getServer()).add(record);
 
-        CorpseEntity corpse = CorpseRegistry.CORPSE_ENTITY.create(player.level());
+        CorpseEntity corpse = CorpseRegistry.CORPSE_ENTITY.create(player.serverLevel(), EntitySpawnReason.TRIGGERED);
         if (corpse != null) {
             corpse.initialize(player, captured);
             corpse.moveTo(player.getX(), player.getY() + 0.1D, player.getZ(), player.getYRot(), 0.0F);
-            ((ServerLevel) player.level()).addFreshEntity(corpse);
+            player.serverLevel().addFreshEntity(corpse);
         }
 
         inventory.clearContent();

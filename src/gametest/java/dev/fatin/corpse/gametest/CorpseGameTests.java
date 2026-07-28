@@ -12,6 +12,7 @@ import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -72,8 +73,8 @@ public final class CorpseGameTests implements FabricGameTest {
         ServerPlayer player = createPlayer(helper);
         ItemStack cursedSword = new ItemStack(Items.DIAMOND_SWORD);
         cursedSword.enchant(
-                helper.getLevel().registryAccess().registryOrThrow(Registries.ENCHANTMENT)
-                        .getHolderOrThrow(Enchantments.VANISHING_CURSE),
+                helper.getLevel().registryAccess().lookupOrThrow(Registries.ENCHANTMENT)
+                        .getOrThrow(Enchantments.VANISHING_CURSE),
                 1
         );
         player.getInventory().setItem(0, cursedSword);
@@ -110,7 +111,7 @@ public final class CorpseGameTests implements FabricGameTest {
     @GameTest(template = FabricGameTest.EMPTY_STRUCTURE)
     public void transfersBackToOriginalSlots(GameTestHelper helper) {
         ServerPlayer player = createPlayer(helper);
-        CorpseEntity corpse = CorpseRegistry.CORPSE_ENTITY.create(helper.getLevel());
+        CorpseEntity corpse = CorpseRegistry.CORPSE_ENTITY.create(helper.getLevel(), EntitySpawnReason.COMMAND);
         helper.assertTrue(corpse != null, "corpse entity should be creatable");
         corpse.setOwner(player.getUUID(), player.getGameProfile().getName());
         corpse.setItem(0, new ItemStack(Items.GOLD_INGOT, 5));
@@ -132,7 +133,7 @@ public final class CorpseGameTests implements FabricGameTest {
 
     @GameTest(template = FabricGameTest.EMPTY_STRUCTURE)
     public void equipmentSlotsMirrorInventory(GameTestHelper helper) {
-        CorpseEntity corpse = CorpseRegistry.CORPSE_ENTITY.create(helper.getLevel());
+        CorpseEntity corpse = CorpseRegistry.CORPSE_ENTITY.create(helper.getLevel(), EntitySpawnReason.COMMAND);
         helper.assertTrue(corpse != null, "corpse entity should be creatable");
         corpse.setSelectedSlot(2);
         corpse.setItem(2, new ItemStack(Items.DIAMOND_SWORD));
@@ -167,8 +168,8 @@ public final class CorpseGameTests implements FabricGameTest {
     @GameTest(template = FabricGameTest.EMPTY_STRUCTURE)
     public void persistsInventoryAndOwner(GameTestHelper helper) {
         ServerPlayer player = createPlayer(helper);
-        CorpseEntity source = CorpseRegistry.CORPSE_ENTITY.create(helper.getLevel());
-        CorpseEntity restored = CorpseRegistry.CORPSE_ENTITY.create(helper.getLevel());
+        CorpseEntity source = CorpseRegistry.CORPSE_ENTITY.create(helper.getLevel(), EntitySpawnReason.COMMAND);
+        CorpseEntity restored = CorpseRegistry.CORPSE_ENTITY.create(helper.getLevel(), EntitySpawnReason.COMMAND);
         helper.assertTrue(source != null && restored != null, "corpse entities should be creatable");
         source.setOwner(player.getUUID(), player.getGameProfile().getName());
         source.setItem(4, new ItemStack(Items.NETHERITE_SCRAP, 7));
@@ -193,7 +194,7 @@ public final class CorpseGameTests implements FabricGameTest {
 
     @GameTest(template = FabricGameTest.EMPTY_STRUCTURE)
     public void entersSkeletonStage(GameTestHelper helper) {
-        CorpseEntity corpse = CorpseRegistry.CORPSE_ENTITY.create(helper.getLevel());
+        CorpseEntity corpse = CorpseRegistry.CORPSE_ENTITY.create(helper.getLevel(), EntitySpawnReason.COMMAND);
         helper.assertTrue(corpse != null, "corpse entity should be creatable");
         int previousTicks = CorpseFabric.CONFIG.skeletonTicks;
         CorpseFabric.CONFIG.skeletonTicks = 0;

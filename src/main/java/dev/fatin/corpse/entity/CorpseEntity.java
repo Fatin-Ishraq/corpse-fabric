@@ -167,7 +167,7 @@ public final class CorpseEntity extends PathfinderMob implements Container, Exte
                 }
             }
 
-            int minimumY = level().getMinBuildHeight() + 1;
+            int minimumY = level().getMinY() + 1;
             if (getY() < minimumY) {
                 setPos(getX(), minimumY, getZ());
             }
@@ -188,7 +188,7 @@ public final class CorpseEntity extends PathfinderMob implements Container, Exte
         if (!level().isClientSide && player instanceof ServerPlayer serverPlayer) {
             serverPlayer.openMenu(this);
         }
-        return InteractionResult.sidedSuccess(level().isClientSide);
+        return level().isClientSide ? InteractionResult.SUCCESS : InteractionResult.SUCCESS_SERVER;
     }
 
     public boolean canPlayerAccess(Player player) {

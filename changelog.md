@@ -6,6 +6,15 @@
 - Added upstream provenance/adoption notes, issue forms, and GitHub Actions verification.
 - Prepared the source as an explicitly unofficial public review repository.
 
+## 0.1.0-test+1.21.4 - Fabric preview port
+
+- Port the approved 1.21.1 gameplay and interface to Minecraft 1.21.4 while keeping Java 21 compatibility.
+- Migrate entity registration, spawn reasons, interaction results, world-height access, enchantment lookup, and GameTest calls to 1.21.4 APIs.
+- Migrate corpse rendering to the 1.21.4 render-state architecture while preserving player skins, skin overlays, skeleton conversion, armor, held items, and the approved face-up pose.
+- Correct nested 1.21.4 skin-overlay transforms so sleeves, pants, and the jacket follow their parent limbs without duplicated offsets.
+- Pass all eight required GameTests and a real development-client startup smoke test.
+- Publish the source on a dedicated version branch for extended in-game testing before promotion to `master`.
+
 ## 0.1.0+1.21.1 - Fabric port
 
 - Port the approved 1.20.1 gameplay, face-up corpse pose, equipment rendering, screens, and configuration to Minecraft 1.21.1 and Java 21.
