@@ -6,7 +6,7 @@ import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerFactory;
 import net.minecraft.world.ContainerHelper;
 import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.FriendlyByteBuf;
+
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
@@ -31,7 +31,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Optional;
 import java.util.UUID;
 
-public final class CorpseEntity extends PathfinderMob implements Container, ExtendedScreenHandlerFactory {
+public final class CorpseEntity extends PathfinderMob implements Container, ExtendedScreenHandlerFactory<Integer> {
 
     public static final int INVENTORY_SIZE = 41;
 
@@ -76,13 +76,13 @@ public final class CorpseEntity extends PathfinderMob implements Container, Exte
     }
 
     @Override
-    protected void defineSynchedData() {
-        super.defineSynchedData();
-        entityData.define(OWNER_ID, Optional.empty());
-        entityData.define(OWNER_NAME, "");
-        entityData.define(SKELETON, false);
-        entityData.define(FACE_DOWN, false);
-        entityData.define(SELECTED_SLOT, 0);
+    protected void defineSynchedData(SynchedEntityData.Builder builder) {
+        super.defineSynchedData(builder);
+        builder.define(OWNER_ID, Optional.empty());
+        builder.define(OWNER_NAME, "");
+        builder.define(SKELETON, false);
+        builder.define(FACE_DOWN, false);
+        builder.define(SELECTED_SLOT, 0);
     }
 
     public void initialize(ServerPlayer owner, NonNullList<ItemStack> capturedItems) {
@@ -135,6 +135,7 @@ public final class CorpseEntity extends PathfinderMob implements Container, Exte
             case LEGS -> 37;
             case CHEST -> 38;
             case HEAD -> 39;
+            case BODY -> -1;
         };
     }
 
@@ -202,8 +203,8 @@ public final class CorpseEntity extends PathfinderMob implements Container, Exte
     }
 
     @Override
-    public void writeScreenOpeningData(ServerPlayer player, FriendlyByteBuf buf) {
-        buf.writeVarInt(getId());
+    public Integer getScreenOpeningData(ServerPlayer player) {
+        return getId();
     }
 
     @Override
@@ -313,7 +314,7 @@ public final class CorpseEntity extends PathfinderMob implements Container, Exte
         tag.putBoolean("Skeleton", isSkeleton());
         tag.putBoolean("FaceDown", isFaceDown());
         tag.putInt("SelectedSlot", getSelectedSlot());
-        ContainerHelper.saveAllItems(tag, items);
+        ContainerHelper.saveAllItems(tag, items, registryAccess());
     }
 
     @Override
@@ -328,7 +329,7 @@ public final class CorpseEntity extends PathfinderMob implements Container, Exte
         entityData.set(FACE_DOWN, tag.getBoolean("FaceDown"));
         setSelectedSlot(tag.getInt("SelectedSlot"));
         items = NonNullList.withSize(INVENTORY_SIZE, ItemStack.EMPTY);
-        ContainerHelper.loadAllItems(tag, items);
+        ContainerHelper.loadAllItems(tag, items, registryAccess());
         setNoAi(true);
         setNoGravity(true);
         setInvulnerable(true);

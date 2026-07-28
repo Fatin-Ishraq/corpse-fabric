@@ -2,7 +2,6 @@ package dev.fatin.corpse.menu;
 
 import dev.fatin.corpse.history.DeathRecord;
 import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerFactory;
-import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.SimpleContainer;
@@ -12,7 +11,7 @@ import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.Nullable;
 
-public final class HistoryInventoryFactory implements ExtendedScreenHandlerFactory {
+public final class HistoryInventoryFactory implements ExtendedScreenHandlerFactory<HistoryScreenData> {
 
     private final DeathRecord record;
     private final SimpleContainer inventory;
@@ -29,10 +28,8 @@ public final class HistoryInventoryFactory implements ExtendedScreenHandlerFacto
     }
 
     @Override
-    public void writeScreenOpeningData(ServerPlayer player, FriendlyByteBuf buf) {
-        buf.writeUUID(record.id());
-        buf.writeUtf(record.playerName());
-        buf.writeBoolean(editable);
+    public HistoryScreenData getScreenOpeningData(ServerPlayer player) {
+        return new HistoryScreenData(record.id(), record.playerName(), editable);
     }
 
     @Override

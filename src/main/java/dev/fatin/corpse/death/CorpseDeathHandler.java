@@ -10,6 +10,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.enchantment.EnchantmentEffectComponents;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.level.GameRules;
 
@@ -39,7 +40,7 @@ public final class CorpseDeathHandler {
         );
         for (int slot = 0; slot < Math.min(inventory.getContainerSize(), captured.size()); slot++) {
             ItemStack stack = inventory.getItem(slot);
-            if (!stack.isEmpty() && !EnchantmentHelper.hasVanishingCurse(stack)) {
+            if (!stack.isEmpty() && !EnchantmentHelper.has(stack, EnchantmentEffectComponents.PREVENT_EQUIPMENT_DROP)) {
                 captured.set(slot, stack.copy());
             }
         }

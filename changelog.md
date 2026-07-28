@@ -6,6 +6,14 @@
 - Added upstream provenance/adoption notes, issue forms, and GitHub Actions verification.
 - Prepared the source as an explicitly unofficial public review repository.
 
+## 0.1.0+1.21.1 - Fabric port
+
+- Port the approved 1.20.1 gameplay, face-up corpse pose, equipment rendering, screens, and configuration to Minecraft 1.21.1 and Java 21.
+- Migrate networking and extended screen handlers to typed 1.21.1 payload and opening-data codecs.
+- Migrate entity synchronization, SavedData, and item serialization to registry-aware 1.21.1 APIs.
+- Preserve Curse of Vanishing behavior through enchantment effect components and add dedicated GameTest coverage.
+- Pass all eight required GameTests and user-confirmed in-game testing.
+
 ## 0.1.2+1.20.1 - corpse pose correction
 
 - Rotate corpses around the X axis so they rest on their back or face instead of a shoulder.

@@ -2,7 +2,7 @@ package dev.fatin.corpse.menu;
 
 import dev.fatin.corpse.entity.CorpseEntity;
 import dev.fatin.corpse.registry.CorpseRegistry;
-import net.minecraft.network.FriendlyByteBuf;
+
 import net.minecraft.world.Container;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Inventory;
@@ -23,11 +23,9 @@ public final class HistoryMenu extends AbstractContainerMenu {
     private final UUID deathId;
     private final boolean editable;
 
-    public static HistoryMenu fromNetwork(int containerId, Inventory inventory, FriendlyByteBuf buf) {
-        UUID deathId = buf.readUUID();
-        buf.readUtf();
-        boolean editable = buf.readBoolean();
-        return new HistoryMenu(containerId, inventory, new SimpleContainer(HISTORY_SLOT_COUNT), deathId, editable);
+    public static HistoryMenu fromNetwork(int containerId, Inventory inventory, HistoryScreenData data) {
+        return new HistoryMenu(containerId, inventory, new SimpleContainer(HISTORY_SLOT_COUNT),
+                data.deathId(), data.editable());
     }
 
     public HistoryMenu(int containerId, Inventory playerInventory, Container historyInventory,

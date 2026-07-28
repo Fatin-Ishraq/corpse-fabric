@@ -3,11 +3,14 @@ package dev.fatin.corpse.registry;
 import dev.fatin.corpse.CorpseFabric;
 import dev.fatin.corpse.entity.CorpseEntity;
 import dev.fatin.corpse.menu.CorpseMenu;
+import dev.fatin.corpse.menu.HistoryMenu;
+import dev.fatin.corpse.menu.HistoryScreenData;
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricDefaultAttributeRegistry;
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricEntityTypeBuilder;
 import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerType;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.EntityType;
@@ -30,20 +33,20 @@ public final class CorpseRegistry {
     public static final MenuType<CorpseMenu> CORPSE_MENU = Registry.register(
             BuiltInRegistries.MENU,
             id("corpse_inventory"),
-            new ExtendedScreenHandlerType<>(CorpseMenu::fromNetwork)
+            new ExtendedScreenHandlerType<>(CorpseMenu::fromNetwork, ByteBufCodecs.VAR_INT)
     );
 
-    public static final MenuType<dev.fatin.corpse.menu.HistoryMenu> HISTORY_MENU = Registry.register(
+    public static final MenuType<HistoryMenu> HISTORY_MENU = Registry.register(
             BuiltInRegistries.MENU,
             id("death_history_items"),
-            new ExtendedScreenHandlerType<>(dev.fatin.corpse.menu.HistoryMenu::fromNetwork)
+            new ExtendedScreenHandlerType<>(HistoryMenu::fromNetwork, HistoryScreenData.STREAM_CODEC)
     );
     public static void register() {
         FabricDefaultAttributeRegistry.register(CORPSE_ENTITY, CorpseEntity.createAttributes());
     }
 
     public static ResourceLocation id(String path) {
-        return new ResourceLocation(CorpseFabric.MOD_ID, path);
+        return ResourceLocation.fromNamespaceAndPath(CorpseFabric.MOD_ID, path);
     }
 
     private CorpseRegistry() {

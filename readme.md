@@ -20,17 +20,18 @@ No upstream Java source, textures, icons, or other assets are bundled. The imple
 
 | Branch | Minecraft | Loader | Status |
 | --- | --- | --- | --- |
-| `master` | 1.20.1 | Fabric | Current review build |
+| `master` | 1.21.1 | Fabric | Current review build |
+| `1.21.1` | 1.21.1 | Fabric | Preserved version branch |
 | `1.20.1` | 1.20.1 | Fabric | Preserved version branch |
 
 Future Minecraft versions will use version-named branches, following the structure of the original project. Superseded branches can later move under `outdated/`.
 
 ## Requirements
 
-- Minecraft 1.20.1
+- Minecraft 1.21.1
 - Fabric Loader 0.15.11 or newer
-- Fabric API for Minecraft 1.20.1
-- Java 17 or newer
+- Fabric API for Minecraft 1.21.1
+- Java 21 or newer
 
 Install Fabric API and the built JAR in the `mods` folder. On multiplayer servers, install both on the server and every connecting client.
 
@@ -70,13 +71,13 @@ A despawn value of `-1` disables that rule. Restart the game or server after edi
 
 ## Building
 
-Use a Java 21 Gradle runtime; the produced mod targets Java 17 bytecode:
+Use a Java 21 Gradle runtime; the produced mod targets Java 21 bytecode:
 
 ```powershell
 .\gradlew.bat build
 ```
 
-The distributable JAR is written to `build/libs`. The build also launches Fabric's GameTest server. Seven required tests cover the real `ServerPlayer.die` mixin path, duplicate-drop prevention, `keepInventory`, original-slot transfer, corpse NBT persistence, equipment-slot synchronization, and skeleton timing.
+The distributable JAR is written to `build/libs`. The build also launches Fabric's GameTest server. Eight required tests cover the real `ServerPlayer.die` mixin path, duplicate-drop prevention, Curse of Vanishing, `keepInventory`, original-slot transfer, corpse NBT persistence, equipment-slot synchronization, and skeleton timing.
 
 For a development client:
 

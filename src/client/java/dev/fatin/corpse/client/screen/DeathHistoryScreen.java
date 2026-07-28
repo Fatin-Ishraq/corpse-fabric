@@ -3,11 +3,9 @@ package dev.fatin.corpse.client.screen;
 import dev.fatin.corpse.history.DeathSummary;
 import dev.fatin.corpse.network.CorpseNetworking;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
-import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 
 import java.time.Instant;
@@ -70,9 +68,9 @@ public final class DeathHistoryScreen extends Screen {
         if (deaths.isEmpty()) {
             return;
         }
-        FriendlyByteBuf buf = PacketByteBufs.create();
-        buf.writeUUID(deaths.get(index).id());
-        ClientPlayNetworking.send(CorpseNetworking.OPEN_HISTORY_ITEMS, buf);
+        ClientPlayNetworking.send(
+                new CorpseNetworking.OpenHistoryItemsPayload(deaths.get(index).id())
+        );
     }
 
     private void copyTeleportCommand() {
@@ -90,7 +88,7 @@ public final class DeathHistoryScreen extends Screen {
 
     @Override
     public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
-        renderBackground(graphics);
+        renderBackground(graphics, mouseX, mouseY, partialTick);
         int center = width / 2;
         int panelTop = height / 2 - 75;
         graphics.fill(center - 165, panelTop, center + 165, panelTop + 150, 0xE615191E);

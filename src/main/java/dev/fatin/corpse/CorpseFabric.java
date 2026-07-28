@@ -20,6 +20,7 @@ public final class CorpseFabric implements ModInitializer {
     public void onInitialize() {
         CONFIG = CorpseConfig.load();
         CorpseRegistry.register();
+        CorpseNetworking.registerPayloads();
         CorpseNetworking.registerServer();
         CorpseCommands.register();
         ServerPlayerEvents.AFTER_RESPAWN.register((oldPlayer, newPlayer, alive) ->

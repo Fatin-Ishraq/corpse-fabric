@@ -23,7 +23,7 @@ import java.util.UUID;
 public final class CorpseEntityRenderer extends MobRenderer<CorpseEntity, HumanoidModel<CorpseEntity>> {
 
     private static final ResourceLocation SKELETON_TEXTURE =
-            new ResourceLocation("textures/entity/skeleton/skeleton.png");
+            ResourceLocation.withDefaultNamespace("textures/entity/skeleton/skeleton.png");
 
     private final PlayerModel<CorpseEntity> playerModel;
     private final HumanoidModel<CorpseEntity> skeletonModel;
@@ -60,7 +60,7 @@ public final class CorpseEntityRenderer extends MobRenderer<CorpseEntity, Humano
 
     @Override
     protected void setupRotations(CorpseEntity corpse, PoseStack poseStack,
-                                  float ageInTicks, float bodyYaw, float partialTick) {
+                                  float ageInTicks, float bodyYaw, float partialTick, float scale) {
         poseStack.mulPose(Axis.YP.rotationDegrees(180.0F - bodyYaw));
         if (corpse.isFaceDown()) {
             poseStack.mulPose(Axis.XP.rotationDegrees(-90.0F));
@@ -78,17 +78,17 @@ public final class CorpseEntityRenderer extends MobRenderer<CorpseEntity, Humano
         }
         UUID ownerId = corpse.getOwnerId().orElse(null);
         if (ownerId == null) {
-            return DefaultPlayerSkin.getDefaultSkin();
+            return DefaultPlayerSkin.getDefaultTexture();
         }
         Minecraft minecraft = Minecraft.getInstance();
         if (minecraft.getConnection() != null) {
             PlayerInfo info = minecraft.getConnection().getPlayerInfo(ownerId);
             if (info != null) {
-                return info.getSkinLocation();
+                return info.getSkin().texture();
             }
         }
         String name = corpse.getOwnerName().isBlank() ? ownerId.toString() : corpse.getOwnerName();
-        return minecraft.getSkinManager().getInsecureSkinLocation(new GameProfile(ownerId, name));
+        return minecraft.getSkinManager().getInsecureSkin(new GameProfile(ownerId, name)).texture();
     }
 
     @Override

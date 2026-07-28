@@ -4,7 +4,7 @@ This document is intended to make review and possible adoption by the original C
 
 ## Provenance
 
-- The port was implemented independently against Minecraft 1.20.1, Fabric Loader, and Fabric API.
+- The port was implemented independently for Minecraft 1.20.1 and 1.21.1 against Fabric Loader and Fabric API.
 - No Java source, textures, icons, translations, or binary artifacts were copied from `henkelmax/corpse`.
 - Behavior was matched from the public feature description and normal in-game expectations.
 - The official Fabric example-mod Gradle layout was used as build scaffolding.
@@ -17,7 +17,7 @@ The root follows the original project's familiar Gradle structure:
 - gameplay code and common resources under `src/main`;
 - Fabric-only client entrypoints, screens, and rendering under `src/client` so dedicated servers do not load client classes;
 - automated Minecraft tests under `src/gametest`;
-- version branches such as `1.20.1`, with `master` representing the current review line.
+- version branches such as `1.20.1` and `1.21.1`, with `master` representing the current review line.
 
 ## Implementation map
 
@@ -40,7 +40,7 @@ The root follows the original project's familiar Gradle structure:
 6. armor, hand, and offhand slot mapping/removal;
 7. configured skeleton conversion.
 
-The Minecraft 1.20.1 client and dedicated server have also completed startup smoke tests. Manual gameplay testing is tracked in `TESTING.md`.
+Minecraft 1.20.1 completed client and dedicated-server startup smoke tests. Minecraft 1.21.1 passed eight automated GameTests and user-confirmed in-game testing. Manual coverage is tracked in `TESTING.md`.
 
 ## Adoption options
 

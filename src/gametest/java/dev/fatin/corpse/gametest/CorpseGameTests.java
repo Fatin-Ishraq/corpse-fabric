@@ -7,6 +7,7 @@ import dev.fatin.corpse.menu.CorpseMenu;
 import dev.fatin.corpse.registry.CorpseRegistry;
 import net.fabricmc.fabric.api.gametest.v1.FabricGameTest;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.server.level.ServerPlayer;
@@ -14,6 +15,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.GameRules;
 import net.minecraft.world.phys.Vec3;
 
@@ -63,6 +65,27 @@ public final class CorpseGameTests implements FabricGameTest {
             helper.assertItemEntityCountIs(Items.DIAMOND_SWORD, player.blockPosition(), 4.0D, 0);
             helper.succeed();
         });
+    }
+
+    @GameTest(template = FabricGameTest.EMPTY_STRUCTURE)
+    public void excludesCurseOfVanishing(GameTestHelper helper) {
+        ServerPlayer player = createPlayer(helper);
+        ItemStack cursedSword = new ItemStack(Items.DIAMOND_SWORD);
+        cursedSword.enchant(
+                helper.getLevel().registryAccess().registryOrThrow(Registries.ENCHANTMENT)
+                        .getHolderOrThrow(Enchantments.VANISHING_CURSE),
+                1
+        );
+        player.getInventory().setItem(0, cursedSword);
+
+        CorpseDeathHandler.onDeath(player, player.damageSources().generic());
+
+        List<CorpseEntity> corpses = nearbyCorpses(helper, player);
+        helper.assertTrue(corpses.size() == 1, "a corpse should still spawn for cursed inventory");
+        helper.assertTrue(corpses.get(0).getItem(0).isEmpty(),
+                "Curse of Vanishing items must not be stored in the corpse");
+        helper.assertItemEntityCountIs(Items.DIAMOND_SWORD, player.blockPosition(), 4.0D, 0);
+        helper.succeed();
     }
 
     @GameTest(template = FabricGameTest.EMPTY_STRUCTURE)

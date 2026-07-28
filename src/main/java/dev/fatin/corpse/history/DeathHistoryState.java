@@ -1,10 +1,12 @@
 package dev.fatin.corpse.history;
 
 import dev.fatin.corpse.CorpseFabric;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.datafix.DataFixTypes;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.saveddata.SavedData;
 
@@ -17,6 +19,9 @@ import java.util.UUID;
 public final class DeathHistoryState extends SavedData {
 
     private static final String DATA_NAME = "corpse_death_history";
+    private static final SavedData.Factory<DeathHistoryState> FACTORY = new SavedData.Factory<>(
+            DeathHistoryState::new, DeathHistoryState::load, DataFixTypes.LEVEL
+    );
     private final List<DeathRecord> records = new ArrayList<>();
 
     public static DeathHistoryState get(MinecraftServer server) {
@@ -24,14 +29,14 @@ public final class DeathHistoryState extends SavedData {
         if (level == null) {
             throw new IllegalStateException("Overworld is not available");
         }
-        return level.getDataStorage().computeIfAbsent(DeathHistoryState::load, DeathHistoryState::new, DATA_NAME);
+        return level.getDataStorage().computeIfAbsent(FACTORY, DATA_NAME);
     }
 
-    public static DeathHistoryState load(CompoundTag tag) {
+    public static DeathHistoryState load(CompoundTag tag, HolderLookup.Provider registries) {
         DeathHistoryState state = new DeathHistoryState();
         ListTag list = tag.getList("Deaths", CompoundTag.TAG_COMPOUND);
         for (int index = 0; index < list.size(); index++) {
-            state.records.add(DeathRecord.load(list.getCompound(index)));
+            state.records.add(DeathRecord.load(list.getCompound(index), registries));
         }
         return state;
     }
@@ -70,10 +75,10 @@ public final class DeathHistoryState extends SavedData {
     }
 
     @Override
-    public synchronized CompoundTag save(CompoundTag tag) {
+    public synchronized CompoundTag save(CompoundTag tag, HolderLookup.Provider registries) {
         ListTag list = new ListTag();
         for (DeathRecord record : records) {
-            list.add(record.save());
+            list.add(record.save(registries));
         }
         tag.put("Deaths", list);
         return tag;

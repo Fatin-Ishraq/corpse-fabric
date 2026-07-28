@@ -2,7 +2,7 @@ package dev.fatin.corpse.menu;
 
 import dev.fatin.corpse.entity.CorpseEntity;
 import dev.fatin.corpse.registry.CorpseRegistry;
-import net.minecraft.network.FriendlyByteBuf;
+
 import net.minecraft.world.Container;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.Entity;
@@ -21,8 +21,7 @@ public final class CorpseMenu extends AbstractContainerMenu {
     private final CorpseEntity corpse;
     private final Inventory playerInventory;
 
-    public static CorpseMenu fromNetwork(int containerId, Inventory inventory, FriendlyByteBuf buf) {
-        int entityId = buf.readVarInt();
+    public static CorpseMenu fromNetwork(int containerId, Inventory inventory, Integer entityId) {
         Entity entity = inventory.player.level().getEntity(entityId);
         if (entity instanceof CorpseEntity corpseEntity) {
             return new CorpseMenu(containerId, inventory, corpseEntity);

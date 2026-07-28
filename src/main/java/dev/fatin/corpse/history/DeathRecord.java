@@ -2,6 +2,7 @@ package dev.fatin.corpse.history;
 
 import dev.fatin.corpse.entity.CorpseEntity;
 import net.minecraft.world.ContainerHelper;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.item.ItemStack;
@@ -29,7 +30,7 @@ public record DeathRecord(
         return new DeathRecord(id, playerId, playerName, timestamp, dimension, x, y, z, cause, copiedItems);
     }
 
-    public CompoundTag save() {
+    public CompoundTag save(HolderLookup.Provider registries) {
         CompoundTag tag = new CompoundTag();
         tag.putUUID("Id", id);
         tag.putUUID("PlayerId", playerId);
@@ -41,14 +42,14 @@ public record DeathRecord(
         tag.putDouble("Z", z);
         tag.putString("Cause", cause);
         CompoundTag inventoryTag = new CompoundTag();
-        ContainerHelper.saveAllItems(inventoryTag, items);
+        ContainerHelper.saveAllItems(inventoryTag, items, registries);
         tag.put("Inventory", inventoryTag);
         return tag;
     }
 
-    public static DeathRecord load(CompoundTag tag) {
+    public static DeathRecord load(CompoundTag tag, HolderLookup.Provider registries) {
         NonNullList<ItemStack> items = NonNullList.withSize(CorpseEntity.INVENTORY_SIZE, ItemStack.EMPTY);
-        ContainerHelper.loadAllItems(tag.getCompound("Inventory"), items);
+        ContainerHelper.loadAllItems(tag.getCompound("Inventory"), items, registries);
         return new DeathRecord(
                 tag.getUUID("Id"),
                 tag.getUUID("PlayerId"),
