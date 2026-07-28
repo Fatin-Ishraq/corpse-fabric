@@ -6,7 +6,7 @@
 - Added upstream provenance/adoption notes, issue forms, and GitHub Actions verification.
 - Prepared the source as an explicitly unofficial public review repository.
 
-## 0.1.1-test+26.2 - UI and skeleton rendering
+## 0.1.1+26.2 - UI and skeleton rendering
 
 - Restyle and align death history with the approved original-style light-gray interface.
 - Render death-history text with explicit opaque colors and without shadows.
