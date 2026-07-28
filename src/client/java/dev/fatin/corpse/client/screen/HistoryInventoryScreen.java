@@ -34,10 +34,10 @@ public final class HistoryInventoryScreen extends AbstractContainerScreen<Histor
 
     @Override
     protected void extractLabels(GuiGraphicsExtractor graphics, int mouseX, int mouseY) {
-        graphics.text(font, title, titleLabelX, titleLabelY, 0xE7EDF4, false);
-        graphics.text(font, playerInventoryTitle, inventoryLabelX, inventoryLabelY, 0xAEB8C4, false);
+        graphics.text(font, title, titleLabelX, titleLabelY, 0xFFE7EDF4, false);
+        graphics.text(font, playerInventoryTitle, inventoryLabelX, inventoryLabelY, 0xFFAEB8C4, false);
         if (!menu.isEditable()) {
-            graphics.centeredText(font, Component.translatable("gui.corpse.read_only"), imageWidth / 2, 113, 0xD8A657);
+            graphics.centeredText(font, Component.translatable("gui.corpse.read_only"), imageWidth / 2, 113, 0xFFD8A657);
         }
     }
 }

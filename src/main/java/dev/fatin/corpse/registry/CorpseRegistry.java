@@ -6,7 +6,6 @@ import dev.fatin.corpse.menu.CorpseMenu;
 import dev.fatin.corpse.menu.HistoryMenu;
 import dev.fatin.corpse.menu.HistoryScreenData;
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricDefaultAttributeRegistry;
-import net.fabricmc.fabric.api.object.builder.v1.entity.FabricEntityTypeBuilder;
 import net.fabricmc.fabric.api.menu.v1.ExtendedMenuType;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -14,7 +13,6 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.Identifier;
-import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.inventory.MenuType;
@@ -27,11 +25,11 @@ public final class CorpseRegistry {
     public static final EntityType<CorpseEntity> CORPSE_ENTITY = Registry.register(
             BuiltInRegistries.ENTITY_TYPE,
             CORPSE_ENTITY_KEY,
-            FabricEntityTypeBuilder.create(MobCategory.MISC, CorpseEntity::new)
-                    .dimensions(EntityDimensions.scalable(2.0F, 0.5F))
+            EntityType.Builder.of(CorpseEntity::new, MobCategory.MISC)
+                    .sized(2.0F, 0.5F)
                     .fireImmune()
-                    .trackRangeChunks(10)
-                    .trackedUpdateRate(1)
+                    .clientTrackingRange(10)
+                    .updateInterval(1)
                     .build(CORPSE_ENTITY_KEY)
     );
 

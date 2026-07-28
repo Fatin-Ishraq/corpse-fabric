@@ -6,6 +6,14 @@
 - Added upstream provenance/adoption notes, issue forms, and GitHub Actions verification.
 - Prepared the source as an explicitly unofficial public review repository.
 
+## 0.1.0-test+26.2 - Fabric preview port
+
+- Port the approved 26.1.2 implementation to Minecraft 26.2, Fabric Loader 0.19.3, Fabric API 0.156.0, and Java 25.
+- Replace the removed Fabric entity type builder with Minecraft's vanilla entity builder.
+- Migrate client screen opening to the 26.2 `setScreenAndShow` API.
+- Preserve the 26.1.2 death-history blur crash fix, corpse pose, armor and hand rendering, player skins, persistence, networking, inventory recovery, and death history.
+- Pass all nine required server GameTests and a development-client startup/render-registration smoke test.
+- Fix 26.2 GUI text rendering by supplying explicit alpha values for history and inventory labels.
 ## 0.1.0-test+26.1.2 - Fabric preview port
 
 - Port the 1.21.4 implementation to Minecraft 26.1.2, Fabric Loader 0.19.3, Fabric API 0.155.2, and Java 25.
@@ -15,7 +23,7 @@
 - Preserve older corpse owner UUID data while accepting the 26.1.2 serialization APIs.
 - Port and pass the complete server GameTest suite, then verify client startup, integrated-world loading, player death, corpse creation, and post-death rendering.
 - Fix the 26.1.2 death-history and inventory screens requesting background blur twice per frame, which crashed with `Can only blur once per frame`.
-- Keep this version local and uncommitted until in-game approval.
+- Fix 26.2 GUI text rendering by supplying explicit alpha values for history and inventory labels.
 ## 0.1.0-test+1.21.4 - Fabric preview port
 
 - Port the approved 1.21.1 gameplay and interface to Minecraft 1.21.4 while keeping Java 21 compatibility.

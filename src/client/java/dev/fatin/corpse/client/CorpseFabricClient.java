@@ -37,7 +37,7 @@ public final class CorpseFabricClient implements ClientModInitializer {
         });
 
         ClientPlayNetworking.registerGlobalReceiver(CorpseNetworking.HistoryResponsePayload.TYPE,
-                (payload, context) -> context.client().setScreen(
+                (payload, context) -> context.client().setScreenAndShow(
                         new DeathHistoryScreen(payload.playerName(), payload.deaths())
                 ));
     }

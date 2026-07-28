@@ -32,7 +32,7 @@ public final class CorpseInventoryScreen extends AbstractContainerScreen<CorpseM
 
     @Override
     protected void extractLabels(GuiGraphicsExtractor graphics, int mouseX, int mouseY) {
-        graphics.text(font, title, titleLabelX, titleLabelY, 0xE7EDF4, false);
-        graphics.text(font, playerInventoryTitle, inventoryLabelX, inventoryLabelY, 0xAEB8C4, false);
+        graphics.text(font, title, titleLabelX, titleLabelY, 0xFFE7EDF4, false);
+        graphics.text(font, playerInventoryTitle, inventoryLabelX, inventoryLabelY, 0xFFAEB8C4, false);
     }
 }

@@ -92,27 +92,27 @@ public final class DeathHistoryScreen extends Screen {
         int panelTop = height / 2 - 75;
         graphics.fill(center - 165, panelTop, center + 165, panelTop + 150, 0xE615191E);
         graphics.fill(center - 164, panelTop + 1, center + 164, panelTop + 149, 0xE6252B32);
-        graphics.centeredText(font, title, center, panelTop + 12, 0xF1F5F9);
+        graphics.centeredText(font, title, center, panelTop + 12, 0xFFF1F5F9);
 
         if (deaths.isEmpty()) {
             graphics.centeredText(font, Component.translatable("gui.corpse.no_deaths"),
-                    center, panelTop + 65, 0xAEB8C4);
+                    center, panelTop + 65, 0xFFAEB8C4);
         } else {
             DeathSummary death = deaths.get(index);
             String date = DATE_FORMAT.format(Instant.ofEpochMilli(death.timestamp()).atZone(ZoneId.systemDefault()));
-            graphics.centeredText(font, Component.literal(date), center, panelTop + 35, 0xDDE5ED);
+            graphics.centeredText(font, Component.literal(date), center, panelTop + 35, 0xFFDDE5ED);
             graphics.centeredText(font,
                     Component.translatable("gui.corpse.dimension", death.dimension()),
-                    center, panelTop + 51, 0xAEB8C4);
+                    center, panelTop + 51, 0xFFAEB8C4);
             graphics.centeredText(font,
                     Component.translatable("gui.corpse.coordinates",
                             Math.round(death.x()), Math.round(death.y()), Math.round(death.z())),
-                    center, panelTop + 67, 0xAEB8C4);
+                    center, panelTop + 67, 0xFFAEB8C4);
             graphics.centeredText(font, Component.literal(death.cause()),
-                    center, panelTop + 83, 0xD7A7A7);
+                    center, panelTop + 83, 0xFFD7A7A7);
             graphics.centeredText(font,
                     Component.translatable("gui.corpse.page", index + 1, deaths.size()),
-                    center, panelTop + 101, 0x8794A3);
+                    center, panelTop + 101, 0xFF8794A3);
         }
         super.extractRenderState(graphics, mouseX, mouseY, partialTick);
     }
