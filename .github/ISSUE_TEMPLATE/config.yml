@@ -1,0 +1,5 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Original Corpse project issues
+    url: https://github.com/henkelmax/corpse/issues
+    about: Use the original tracker only for issues reproduced in an official Corpse release.

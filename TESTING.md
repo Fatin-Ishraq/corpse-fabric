@@ -1,4 +1,4 @@
-# In-game test checklist — Fabric 1.20.1
+# In-game test checklist - Fabric 1.20.1
 
 Use a separate backup world for this first test build. Install Fabric API and this mod on both client and server when testing multiplayer.
 

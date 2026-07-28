@@ -1,15 +1,15 @@
-# Permission status
+# Permission and publication status
 
-Status: pending written permission from the original Corpse author.
+This repository is public so the original Corpse creator and prospective collaborators can inspect the Fabric implementation. It remains an unofficial review build.
 
-Before any public repository, CurseForge/Modrinth upload, donation link, paid commission, or other distribution, obtain written terms that explicitly cover:
+Before a marketplace release, donation link, paid commission, or representation as an official port, obtain written terms from the original creator that explicitly cover:
 
-- reimplementing and distributing a Fabric version;
-- use of the name "Corpse" and any branding or listing references;
-- whether upstream code or assets may be reused (this test build currently uses neither);
-- source-code publication and the license to apply to this implementation;
-- supported Minecraft versions and whether the project is official or unofficial;
+- adoption, merging, or distribution of a Fabric version;
+- use of the name "Corpse" and related branding or listing references;
+- the source-code license and ownership or contributor terms;
+- whether any upstream code or assets may be reused;
+- supported Minecraft versions and support responsibility;
 - donations, sponsorship, commissions, and any revenue sharing;
-- attribution, links, support responsibility, and takedown/update expectations.
+- attribution, project links, update expectations, and takedown terms.
 
-Keep the author's message or agreement with the project records. After permission is received, replace `LicenseRef-Permission-Pending` in `fabric.mod.json`, add the agreed license file, and revise the project description before publishing.
+No open-source license is currently granted. After permission is received, replace `LicenseRef-Permission-Pending` in `fabric.mod.json`, add the agreed license and copyright notices, and revise the project description before publishing an official binary.
