@@ -6,6 +6,12 @@
 - Added upstream provenance/adoption notes, issue forms, and GitHub Actions verification.
 - Prepared the source as an explicitly unofficial public review repository.
 
+## 0.1.2+1.20.1 - corpse pose correction
+
+- Rotate corpses around the X axis so they rest on their back or face instead of a shoulder.
+- Spawn corpses face-up by default while preserving the optional face-down configuration.
+- Apply a small vertical clearance offset to prevent the body from clipping into the ground.
+
 ## 0.1.1+1.20.1 - armor rendering fix
 
 - Render stored helmet, chestplate, leggings, and boots on the corpse.

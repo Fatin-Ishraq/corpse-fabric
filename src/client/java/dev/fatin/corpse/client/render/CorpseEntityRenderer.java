@@ -62,8 +62,13 @@ public final class CorpseEntityRenderer extends MobRenderer<CorpseEntity, Humano
     protected void setupRotations(CorpseEntity corpse, PoseStack poseStack,
                                   float ageInTicks, float bodyYaw, float partialTick) {
         poseStack.mulPose(Axis.YP.rotationDegrees(180.0F - bodyYaw));
-        poseStack.mulPose(Axis.ZP.rotationDegrees(corpse.isFaceDown() ? -90.0F : 90.0F));
-        poseStack.translate(0.0F, -0.78F, 0.0F);
+        if (corpse.isFaceDown()) {
+            poseStack.mulPose(Axis.XP.rotationDegrees(-90.0F));
+            poseStack.translate(0.0F, -0.78F, 2.01D / 16.0D);
+        } else {
+            poseStack.mulPose(Axis.XP.rotationDegrees(90.0F));
+            poseStack.translate(0.0F, -0.78F, -2.01D / 16.0D);
+        }
     }
 
     @Override
