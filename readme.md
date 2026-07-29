@@ -6,7 +6,7 @@ This repository contains an independent Fabric implementation of the gameplay pr
 
 > **Upstream review status:** This repository is an unofficial technical preview. It is not endorsed by, maintained by, or published on behalf of Max Henkel. Marketplace publication, final branding, and licensing remain pending the original creator's written approval.
 
-No upstream Java source, textures, icons, or other assets are bundled in the mod JAR. The implementation and interface assets were written specifically for Fabric. Documentation screenshots from the official project page are stored separately in [`pics`](pics/README.md) with attribution.
+No upstream Java source, textures, icons, or other assets are bundled. The implementation and interface assets in this repository were written specifically for Fabric.
 
 ## Links
 

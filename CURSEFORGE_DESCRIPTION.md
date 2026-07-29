@@ -15,24 +15,16 @@ When a player dies, this mod creates a corpse at the death location and stores t
 - Provides a persistent death history screen
 - Supports Fabric on multiple Minecraft versions
 
-![A player corpse containing the player's items](https://raw.githubusercontent.com/Fatin-Ishraq/corpse-fabric/master/pics/PbLRPZG.png)
-
 
 ## Skeleton Stage
 
 After 72,000 server ticks—about one hour at the normal 20 TPS—the corpse changes into a skeleton. This is a visual indication of its age and does not change the items stored inside it.
 
-![An older corpse rendered as a skeleton](https://raw.githubusercontent.com/Fatin-Ishraq/corpse-fabric/master/pics/tDPoSPD.png)
-
 The **Transfer Items** button attempts to return recovered items to their original slots.
-
-![Transferring items from a corpse](https://raw.githubusercontent.com/Fatin-Ishraq/corpse-fabric/master/pics/QaYgkb9.png)
 
 ## Death History
 
 Press `U` or run `/deathhistory` to view your previous deaths. Each entry records the time, dimension, coordinates, death message, and inventory snapshot.
-
-![The death history screen](https://raw.githubusercontent.com/Fatin-Ishraq/corpse-fabric/master/pics/mg68xFT.png)
 
 Operators can view another player's history with:
 
@@ -40,17 +32,9 @@ Operators can view another player's history with:
 /deathhistory <player>
 ```
 
-![Viewing another player's death history](https://raw.githubusercontent.com/Fatin-Ishraq/corpse-fabric/master/pics/RzYuMFX.png)
-
-![A death history entry](https://raw.githubusercontent.com/Fatin-Ishraq/corpse-fabric/master/pics/OaPMXl6.png)
-
 In Creative Mode, the **Items** button can be used to recover items from a historical inventory snapshot.
 
 The **Location** button displays a teleport command containing the death coordinates and dimension.
-
-![Death location information](https://raw.githubusercontent.com/Fatin-Ishraq/corpse-fabric/master/pics/EvRsWwp.png)
-
-![Teleport command for a death location](https://raw.githubusercontent.com/Fatin-Ishraq/corpse-fabric/master/pics/e7xZeen.png)
 
 ## Configuration
 
@@ -82,7 +66,3 @@ Install the mod and Fabric API on both the server and every connecting client.
 Max, I tried to contact you directly and also reached out through members of your team to discuss this Fabric port, but I have not received a response. I am therefore making this independently written implementation available as an explicitly unofficial port so Fabric players can use it while its origin and ownership remain clear.
 
 If you would prefer this project to be removed, please contact me and I will take it down promptly. My preferred outcome would be for you to accept, merge, or take ownership of the Fabric port so it can be maintained and published as part of the official Corpse project.
-
-## Screenshot Attribution
-
-The screenshots used on this draft page come from Max Henkel's official Corpse project description and are included with attribution for review. They are not presented as original screenshots of this Fabric port and can be replaced or removed at Max Henkel's request.
