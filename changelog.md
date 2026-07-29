@@ -6,7 +6,7 @@
 - Added upstream provenance/adoption notes, issue forms, and GitHub Actions verification.
 - Prepared the source as an explicitly unofficial public review repository.
 
-## 0.1.1-test+1.21.1 - death history interface parity
+## 0.1.1+1.21.1 - death history interface parity
 
 - Restyle death history with the original mod's light-gray Minecraft interface palette.
 - Align the navigation row with consistent panel padding and separate the Done button.
