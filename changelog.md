@@ -6,6 +6,14 @@
 - Added upstream provenance/adoption notes, issue forms, and GitHub Actions verification.
 - Prepared the source as an explicitly unofficial public review repository.
 
+## 0.1.1+1.21.1 - death history interface parity
+
+- Restyle death history with the original mod's light-gray Minecraft interface palette.
+- Align the navigation row with consistent panel padding and separate the Done button.
+- Render information text without shadows for sharper readability.
+- Keep panel contents out of Minecraft's blur pass so the interface remains sharp.
+- Recreate the palette programmatically without bundling upstream textures or assets.
+
 ## 0.1.0+1.21.1 - Fabric port
 
 - Port the approved 1.20.1 gameplay, face-up corpse pose, equipment rendering, screens, and configuration to Minecraft 1.21.1 and Java 21.
