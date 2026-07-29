@@ -1,55 +1,58 @@
-# Corpse - Fabric port proposal
+# Corpse Fabric Continuation
 
 [![Build](https://github.com/Fatin-Ishraq/corpse-fabric/actions/workflows/build.yml/badge.svg)](https://github.com/Fatin-Ishraq/corpse-fabric/actions/workflows/build.yml)
+[![CurseForge](https://img.shields.io/badge/CurseForge-Corpse%20Fabric%20Continuation-f16436)](https://www.curseforge.com/minecraft/mc-mods/corpse-fabric-continuation/)
 
-This repository contains an independent Fabric implementation of the gameplay provided by [henkelmax/corpse](https://github.com/henkelmax/corpse). It is being prepared for review by the original creator, Max Henkel, with the hope that the Fabric build can be accepted, merged, or published through the official project.
+This repository provides an independent Fabric implementation of [Corpse](https://www.curseforge.com/minecraft/mc-mods/corpse) by [Max Henkel](https://github.com/henkelmax).
 
-> **Upstream review status:** This repository is an unofficial technical preview. It is not endorsed by, maintained by, or published on behalf of Max Henkel. Marketplace publication, final branding, and licensing remain pending the original creator's written approval.
+It stores a player's inventory in a corpse after death, keeps the original slot layout, renders the player's equipment, and provides a persistent death history.
 
-No upstream Java source, textures, icons, or other assets are bundled. The implementation and interface assets in this repository were written specifically for Fabric.
+> This is a community-maintained Fabric port. It is not currently an official release by Max Henkel.
 
-## Links
+![A corpse displaying the player's skin and equipment](pics/corpse-with-armor.png)
 
-- [Original Corpse repository](https://github.com/henkelmax/corpse)
-- [Official CurseForge project](https://www.curseforge.com/minecraft/mc-mods/corpse)
-- [Permission and publication status](PERMISSION.md)
-- [Upstream review notes](UPSTREAM_REVIEW.md)
-- [In-game test checklist](TESTING.md)
+## Downloads and links
 
-## Supported versions
-
-| Branch | Minecraft | Loader | Status |
-| --- | --- | --- | --- |
-| `master` | 1.21.1 | Fabric | Current review build |
-| `1.21.1` | 1.21.1 | Fabric | Preserved version branch |
-| `1.20.1` | 1.20.1 | Fabric | Preserved version branch |
-
-Future Minecraft versions will use version-named branches, following the structure of the original project. Superseded branches can later move under `outdated/`.
-
-## Requirements
-
-- Minecraft 1.21.1
-- Fabric Loader 0.15.11 or newer
-- Fabric API for Minecraft 1.21.1
-- Java 21 or newer
-
-Install Fabric API and the built JAR in the `mods` folder. On multiplayer servers, install both on the server and every connecting client.
+- [Download on CurseForge](https://www.curseforge.com/minecraft/mc-mods/corpse-fabric-continuation/)
+- [Original Corpse project](https://www.curseforge.com/minecraft/mc-mods/corpse)
+- [Original Corpse source repository](https://github.com/henkelmax/corpse)
+- [Report an issue](https://github.com/Fatin-Ishraq/corpse-fabric/issues)
 
 ## Features
 
-- Captures all 41 vanilla player inventory slots: hotbar, main inventory, armor, and offhand.
-- Honors `keepInventory`; items with Curse of Vanishing are not stored.
-- Prevents duplicate vanilla item drops after a corpse is created.
-- Persists corpse ownership, inventory, orientation, age, and skeleton state in world data.
-- Uses the player's skin and a vanilla skeleton model without copied project artwork.
-- Renders synchronized armor, the selected hotbar item, and offhand equipment; visuals update as items are recovered.
-- Owner-protected access, operator bypass, and configurable public skeleton access.
-- Right-click inventory, shift-click retrieval, and one-button transfer to original slots where possible.
-- Persistent death history with time, dimension, coordinates, death message, and inventory snapshot.
-- `U` or `/deathhistory` opens the player's history; operators can use `/deathhistory <player>`.
-- Creative-mode recovery copies from historical inventory records.
-- Fire immunity, invulnerability, no distance despawn, and minimum-world-height protection.
-- Client/server source separation for dedicated-server compatibility.
+- Stores the hotbar, main inventory, armor, and offhand items in the corpse.
+- Preserves original inventory slots when transferring items back.
+- Displays the player's skin, armor, selected item, and offhand item.
+- Honors `keepInventory` and Curse of Vanishing.
+- Protects corpses by owner, with operator bypass and configurable skeleton access.
+- Prevents fire, lava, void, and distance-despawn item loss.
+- Turns old corpses into skeletons after one hour by default.
+- Opens the corpse inventory by right-clicking it.
+- Opens death history with `U` or `/deathhistory`.
+- Allows operators to use `/deathhistory <player>`.
+- Supports client and dedicated-server environments.
+
+## Supported versions
+
+| Branch | Minecraft | Mod version | Java |
+| --- | --- | --- | --- |
+| [`1.20.1`](../../tree/1.20.1) | 1.20.1 | `0.1.3+1.20.1` | 17 |
+| [`1.21.1`](../../tree/1.21.1) | 1.21.1 | `0.1.1+1.21.1` | 21 |
+| [`1.21.4`](../../tree/1.21.4) | 1.21.4 | `0.1.2+1.21.4` | 21 |
+| [`26.1.2`](../../tree/26.1.2) | 26.1.2 | `0.1.1+26.1.2` | 25 |
+| [`26.2`](../../tree/26.2) | 26.2 | `0.1.1+26.2` | 25 |
+
+Use the JAR made for your exact Minecraft version.
+
+## Installation
+
+Install:
+
+1. Fabric Loader
+2. Fabric API for your Minecraft version
+3. The matching Corpse Fabric JAR
+
+For multiplayer, install the mod and Fabric API on both the server and every connecting client.
 
 ## Configuration
 
@@ -67,24 +70,32 @@ The first launch creates `config/corpse.json`:
 }
 ```
 
-A despawn value of `-1` disables that rule. Restart the game or server after editing the file.
+A despawn value of `-1` disables that despawn rule. Restart the game or server after editing the file.
 
 ## Building
 
-Use a Java 21 Gradle runtime; the produced mod targets Java 21 bytecode:
+Check out the branch for the Minecraft version you want. Use Java 21 to build the 1.20.1, 1.21.1, and 1.21.4 branches; use Java 25 to build the 26.x branches. The Java column above is the minimum version required to run each mod JAR.
 
 ```powershell
 .\gradlew.bat build
 ```
 
-The distributable JAR is written to `build/libs`. The build also launches Fabric's GameTest server. Eight required tests cover the real `ServerPlayer.die` mixin path, duplicate-drop prevention, Curse of Vanishing, `keepInventory`, original-slot transfer, corpse NBT persistence, equipment-slot synchronization, and skeleton timing.
+The distributable JAR is written to `build/libs`. The build also runs the Fabric GameTest suite.
 
-For a development client:
+To launch a development client:
 
 ```powershell
 .\gradlew.bat runClient
 ```
 
-## License and contributions
+## Upstream adoption
 
-No open-source license has been assigned while upstream permission is pending. The public source is available for review, but publication here does not grant permission to redistribute, relicense, monetize, or claim this work as an official Corpse release. See [PERMISSION.md](PERMISSION.md).
+This port was implemented independently for Fabric. No Java source, textures, icons, or other assets from the original repository are bundled in the mod JAR.
+
+Each supported Minecraft version has its own self-contained branch, Gradle wrapper, automated GameTests, client/server source separation, and release metadata. The repository is ready to be reviewed, contributed, transferred, or adapted into the official Corpse project.
+
+Max, if you would like to adopt the Fabric port, I would be happy to contribute the code, transfer maintenance, and provide the permissions needed for an official release.
+
+## License
+
+All Rights Reserved. This applies to the independent Fabric implementation in this repository. Additional permission can be granted directly for upstream adoption.

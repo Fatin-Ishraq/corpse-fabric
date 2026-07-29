@@ -6,7 +6,7 @@ body:
   - type: markdown
     attributes:
       value: |
-        This is an unofficial Fabric review build. Please verify the problem without other inventory or death-handling mods when possible.
+        This is a community-maintained Fabric port. Please verify the problem without other inventory or death-handling mods when possible.
   - type: input
     id: minecraft
     attributes:
