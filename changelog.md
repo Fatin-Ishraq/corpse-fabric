@@ -6,7 +6,7 @@
 - Added upstream provenance/adoption notes, issue forms, and GitHub Actions verification.
 - Prepared the source as an explicitly unofficial public review repository.
 
-## 0.1.2-test+1.21.4 - proper skeleton rendering
+## 0.1.2+1.21.4 - proper skeleton rendering
 
 - Delegate decomposed corpses to Minecraft 1.21.4's dedicated `SkeletonRenderer` and `SkeletonRenderState`.
 - Preserve the corpse's face-up or face-down resting rotation through the delegated skeleton renderer.
